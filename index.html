@@ -141,16 +141,18 @@
         }
 
         .word-card {
-            background: var(--card);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: var(--shadow);
-            transition: transform 0.2s;
-        }
+    background: var(--card);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+    transition: all 0.2s; /* Changed to all for border color transition */
+    border: 1px solid var(--border);
+}
 
-        .word-card:hover {
-            transform: translateY(-2px);
-        }
+.word-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--primary); /* Color changes on hover */
+}
 
         .word-header {
             display: flex;
