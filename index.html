@@ -3,100 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Word Bank</title>
+    <title>VocabVault | Mastery Mode</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #6366f1;
-            --primary-hover: #4f46e5;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --accent: #e0e7ff;
-            --danger: #ef4444;
-            --danger-hover: #dc2626;
-        }
-
+        :root { --primary: #6366f1; --primary-hover: #4f46e5; --bg: #f8fafc; --card-bg: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --accent: #e0e7ff; --danger: #ef4444; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main); padding: 40px 20px; }
         .app-container { max-width: 700px; margin: 0 auto; }
-
         header { text-align: center; margin-bottom: 40px; }
         header h1 { font-size: 2.5rem; font-weight: 800; background: linear-gradient(to right, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-
-        /* Input Controls */
         .glass-panel { background: var(--card-bg); padding: 24px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); margin-bottom: 30px; }
         .input-row { display: flex; gap: 12px; margin-bottom: 16px; }
-        input { flex: 1; padding: 14px 18px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 1rem; outline: none; transition: 0.2s; }
-        input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--accent); }
+        input, textarea { width: 100%; padding: 14px 18px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 1rem; outline: none; transition: 0.2s; font-family: inherit; }
+        input:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--accent); }
         .btn-primary { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
-
-        /* Card Outline */
-        .word-card { background: var(--card-bg); border-radius: 20px; padding: 28px; margin-bottom: 20px; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px rgba(0,0,0,0.02); transition: transform 0.2s; }
-        .word-card:hover { transform: scale(1.01); }
-        .word-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+        .word-card { background: var(--card-bg); border-radius: 20px; padding: 28px; margin-bottom: 25px; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
         .word-title { font-size: 1.8rem; font-weight: 800; text-transform: capitalize; }
         .pill { padding: 4px 12px; border-radius: 99px; font-size: 0.7rem; font-weight: 700; background: var(--accent); color: var(--primary); text-transform: uppercase; margin-bottom: 5px; display: inline-block; }
-        .elaboration-text { color: #334155; font-size: 1.05rem; white-space: pre-line; background: #f8fafc; padding: 18px; border-radius: 12px; border-left: 4px solid var(--primary); }
-        .btn-icon { background: none; border: none; cursor: pointer; font-size: 0.85rem; color: var(--text-muted); font-weight: 600; padding: 5px; }
-        .btn-icon:hover { color: var(--danger); }
-
-        /* MODAL CSS */
-        .modal-overlay { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(15, 23, 42, 0.6); 
-            display: none; /* Hidden by default */
-            align-items: center; justify-content: center; 
-            z-index: 1000; 
-            backdrop-filter: blur(8px); 
-        }
-        .modal-content { 
-            background: white; padding: 32px; border-radius: 24px; 
-            max-width: 400px; width: 90%; text-align: center; 
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            animation: modalPop 0.3s ease-out; 
-        }
-        @keyframes modalPop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .elaboration-text { color: #334155; font-size: 1.05rem; white-space: pre-line; background: #f8fafc; padding: 18px; border-radius: 12px; border-left: 4px solid var(--primary); margin-bottom: 15px; }
+        .sandbox { margin-top: 15px; border-top: 1px dashed #e2e8f0; padding-top: 15px; }
+        .sandbox-label { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .sandbox-btn { background: #f1f5f9; color: var(--primary); border: none; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
+        .practice-input { font-style: italic; font-size: 0.95rem; color: #475569; background: #fff; min-height: 80px; resize: vertical; }
+        .save-indicator { font-size: 0.7rem; font-weight: normal; color: #10b981; opacity: 0; transition: 0.3s; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(8px); }
+        .modal-content { background: white; padding: 32px; border-radius: 24px; max-width: 400px; width: 90%; text-align: center; }
         .modal-actions { display: flex; gap: 12px; margin-top: 24px; }
         .btn-modal { flex: 1; padding: 12px; border-radius: 12px; font-weight: 700; border: none; cursor: pointer; }
         .btn-cancel { background: #f1f5f9; color: var(--text-main); }
         .btn-confirm { background: var(--danger); color: white; }
-        .btn-confirm:hover { background: var(--danger-hover); }
-
-        #status { text-align: center; height: 30px; font-weight: 600; transition: 0.3s; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
     <header>
-        <h1>Word Bank</h1>
-        <p>what's the word again?</p>
+        <h1>VocabVault</h1>
+        <p>Master deep words by defining and practicing them.</p>
     </header>
-
-    <div id="status"></div>
-
+    <div id="status" style="text-align: center; height: 30px; font-weight: 600;"></div>
     <div class="glass-panel">
         <div class="input-row">
-            <input type="text" id="wordIn" placeholder="Enter word...">
+            <input type="text" id="wordIn" placeholder="Enter word to elaborate...">
             <button class="btn-primary" onclick="handleAdd()">Elaborate</button>
         </div>
-        <input type="text" id="searchIn" placeholder="Search saved words..." onkeyup="fetchWords()">
+        <input type="text" id="searchIn" placeholder="Search your vault..." onkeyup="fetchWords()">
     </div>
-
     <div id="vocabList"></div>
 </div>
 
 <div id="deleteModal" class="modal-overlay">
     <div class="modal-content">
-        <h2 style="font-size: 1.5rem; margin-bottom: 8px;">Delete Word?</h2>
-        <p style="color: var(--text-muted);">This will permanently remove the word and its elaboration from your vault.</p>
+        <h2>Delete Word?</h2>
         <div class="modal-actions">
             <button class="btn-modal btn-cancel" onclick="closeModal()">Cancel</button>
-            <button class="btn-modal btn-confirm" id="confirmDeleteBtn">Delete Word</button>
+            <button class="btn-modal btn-confirm" id="confirmDeleteBtn">Delete</button>
         </div>
     </div>
 </div>
@@ -106,106 +68,89 @@
         URL: 'https://dpxvzxxqcwhgbngndfgc.supabase.co',
         KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRweHZ6eHhxY3doZ2JuZ25kZmdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwNjIzNjgsImV4cCI6MjA4NDYzODM2OH0.mQIeqj8zFs4oCLmKDSbTOi2pCi1DkJRGt7R0xTwBPXo'
     };
-    
     const vaultClient = supabase.createClient(CONFIG.URL, CONFIG.KEY);
-    let targetWordId = null; // Stores the ID of the word we intend to delete
+    let targetId = null;
+    let saveTimeout;
 
-    // Fetch deep meaning
     async function handleAdd() {
         const input = document.getElementById('wordIn');
         const word = input.value.trim();
         if (!word) return;
-
-        updateStatus("✨ Analyzing deep meaning...");
-        
+        updateStatus("✨ Analyzing...");
         try {
             const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
-            if (!res.ok) throw new Error();
             const data = await res.json();
-            
             let deepDef = "";
-            data[0].meanings.forEach((m, i) => {
-                deepDef += `${i+1}. (${m.partOfSpeech.toUpperCase()}) ${m.definitions[0].definition}\n\n`;
-            });
+            data[0].meanings.forEach((m, i) => { deepDef += `${i+1}. (${m.partOfSpeech.toUpperCase()}) ${m.definitions[0].definition}\n\n`; });
+            await vaultClient.from('vocab').insert([{ word, definition: deepDef.trim(), example: data[0].meanings[0].partOfSpeech }]);
+            input.value = ''; updateStatus("✅ Saved!", "#10b981"); fetchWords();
+        } catch (e) { updateStatus("❌ Not found", "#ef4444"); }
+    }
 
-            const { error } = await vaultClient.from('vocab').insert([{ 
-                word, 
-                definition: deepDef.trim(), 
-                example: data[0].meanings[0].partOfSpeech 
-            }]);
+    // External Search Logic
+    async function findSentence(word, id) {
+        const btn = document.getElementById(`btn-${id}`);
+        btn.innerText = "Searching...";
+        try {
+            const res = await fetch(`https://api.datamuse.com/words?rel_trg=${word}&max=5`);
+            const data = await res.json();
+            const sentence = data.length > 0 ? `It is important to understand how '${word}' relates to the concept of '${data[0].word}'.` : `Practice using '${word}' in a clear sentence here.`;
+            document.getElementById(`text-${id}`).value = sentence;
+            await saveSentence(id, sentence);
+            btn.innerText = "✨ Found!";
+            setTimeout(() => btn.innerText = "🔍 Search Sample", 2000);
+        } catch (e) { btn.innerText = "Error"; }
+    }
 
-            if (!error) {
-                input.value = '';
-                updateStatus("✅ Added to Vault!", "#10b981");
-                fetchWords();
-            }
-        } catch (e) {
-            updateStatus("❌ Word not found", "#ef4444");
+    // Auto-Save Logic
+    function handleTyping(id, text) {
+        const indicator = document.getElementById(`save-${id}`);
+        indicator.innerText = "Saving..."; indicator.style.opacity = "1";
+        clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(() => saveSentence(id, text), 1000);
+    }
+
+    async function saveSentence(id, text) {
+        const { error } = await vaultClient.from('vocab').update({ usage_example: text }).eq('id', id);
+        if (!error) {
+            const indicator = document.getElementById(`save-${id}`);
+            indicator.innerText = "Saved";
+            setTimeout(() => { if(indicator) indicator.style.opacity = "0"; }, 2000);
         }
     }
 
-    // Render cards with outlines
     async function fetchWords() {
         const search = document.getElementById('searchIn').value;
         let query = vaultClient.from('vocab').select('*').order('created_at', { ascending: false });
         if (search) query = query.ilike('word', `%${search}%`);
-
-        const { data, error } = await query;
-        if (error) return;
-
+        const { data } = await query;
         const list = document.getElementById('vocabList');
         list.innerHTML = '';
         data.forEach(item => {
             const card = document.createElement('div');
             card.className = 'word-card';
             card.innerHTML = `
-                <div class="word-header">
-                    <div>
-                        <div class="pill">${item.example}</div>
-                        <div class="word-title">${item.word}</div>
-                    </div>
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn-icon" onclick="speak('${item.word}')">🔊 Listen</button>
-                        <button class="btn-icon" onclick="openModal(${item.id})">🗑️ Remove</button>
-                    </div>
+                <div class="word-header" style="display:flex; justify-content:space-between;">
+                    <div><div class="pill">${item.example}</div><div class="word-title">${item.word}</div></div>
+                    <button style="background:none; border:none; color:var(--danger); cursor:pointer;" onclick="openModal(${item.id})">🗑️</button>
                 </div>
                 <div class="elaboration-text">${item.definition}</div>
+                <div class="sandbox">
+                    <div class="sandbox-label">
+                        <span>PRACTICE SENTENCE <span id="save-${item.id}" class="save-indicator">Saved</span></span>
+                        <button class="sandbox-btn" id="btn-${item.id}" onclick="findSentence('${item.word}', ${item.id})">🔍 Search Sample</button>
+                    </div>
+                    <textarea class="practice-input" id="text-${item.id}" oninput="handleTyping(${item.id}, this.value)" placeholder="Write your own sentence...">${item.usage_example || ''}</textarea>
+                </div>
             `;
             list.appendChild(card);
         });
     }
 
-    // MODAL LOGIC
-    function openModal(id) {
-        targetWordId = id;
-        document.getElementById('deleteModal').style.display = 'flex';
-    }
-
-    function closeModal() {
-        document.getElementById('deleteModal').style.display = 'none';
-        targetWordId = null;
-    }
-
-    document.getElementById('confirmDeleteBtn').onclick = async () => {
-        if (targetWordId) {
-            const { error } = await vaultClient.from('vocab').delete().eq('id', targetWordId);
-            if (!error) {
-                closeModal();
-                fetchWords();
-                updateStatus("🗑️ Word removed", "#64748b");
-            }
-        }
-    };
-
-    function speak(txt) { window.speechSynthesis.speak(new SpeechSynthesisUtterance(txt)); }
-
-    function updateStatus(msg, color = "#6366f1") {
-        const el = document.getElementById('status');
-        el.innerText = msg;
-        el.style.color = color;
-        setTimeout(() => el.innerText = "", 3000);
-    }
-
+    function openModal(id) { targetId = id; document.getElementById('deleteModal').style.display = 'flex'; }
+    function closeModal() { document.getElementById('deleteModal').style.display = 'none'; }
+    document.getElementById('confirmDeleteBtn').onclick = async () => { if (targetId) { await vaultClient.from('vocab').delete().eq('id', targetId); closeModal(); fetchWords(); } };
+    function updateStatus(msg, color = "#6366f1") { const el = document.getElementById('status'); el.innerText = msg; el.style.color = color; setTimeout(() => el.innerText = "", 3000); }
     fetchWords();
 </script>
 </body>
