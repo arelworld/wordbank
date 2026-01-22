@@ -3,77 +3,212 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deep Vocab Builder</title>
+    <title>VocabVault | Deep Learning</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #4f46e5; --bg: #f8fafc; --text: #1e293b; }
-        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 20px; }
-        .container { background: white; padding: 2rem; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 600px; }
-        h1 { text-align: center; margin-bottom: 20px; letter-spacing: -1px; }
-        .status-msg { height: 20px; text-align: center; font-size: 0.85rem; color: #6366f1; margin-bottom: 10px; font-weight: 500; }
-        .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
-        input { flex: 1; padding: 14px; border: 2px solid #e2e8f0; border-radius: 12px; outline: none; transition: 0.2s; font-size: 1rem; }
-        input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); }
-        button { padding: 12px 24px; background: var(--primary); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        button:hover { opacity: 0.9; transform: translateY(-1px); }
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --accent: #e0e7ff;
+            --danger: #ef4444;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         
-        /* Word Card Styling */
-        .word-card { background: white; border: 1px solid #e2e8f0; padding: 24px; border-radius: 16px; margin-top: 15px; }
-        .word-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-        .word-card h3 { margin: 0; text-transform: capitalize; font-size: 1.6rem; color: #0f172a; }
-        .meaning-pill { display: inline-block; background: #eff6ff; color: #2563eb; padding: 2px 10px; border-radius: 99px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; margin-bottom: 8px; }
-        .elaboration { color: #475569; line-height: 1.6; font-size: 1.05rem; white-space: pre-line; }
-        
-        .actions { display: flex; gap: 8px; }
-        .btn-del { background: #fee2e2; color: #ef4444; font-size: 0.8rem; padding: 6px 12px; }
-        .btn-speak { background: #f1f5f9; color: #475569; font-size: 0.8rem; padding: 6px 12px; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 40px 20px;
+        }
+
+        .app-container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Header Area */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #6366f1, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        header p { color: var(--text-muted); font-size: 1rem; }
+
+        /* Input Controls */
+        .glass-panel {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 20px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--accent);
+        }
+
+        button {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+
+        /* Word List */
+        .word-list { display: flex; flex-direction: column; gap: 20px; }
+
+        .word-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 28px;
+            border: 1px solid #f1f5f9;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+            transition: transform 0.2s;
+        }
+
+        .word-card:hover { transform: scale(1.01); }
+
+        .word-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .word-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--text-main);
+            text-transform: capitalize;
+        }
+
+        .word-meta {
+            display: flex;
+            gap: 10px;
+        }
+
+        .pill {
+            padding: 4px 12px;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            background: var(--accent);
+            color: var(--primary);
+        }
+
+        .elaboration-text {
+            color: #334155;
+            font-size: 1.05rem;
+            white-space: pre-line;
+            background: #fafafa;
+            padding: 15px;
+            border-radius: 12px;
+        }
+
+        .btn-action {
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            padding: 8px;
+        }
+
+        .btn-action:hover { color: var(--danger); background: #fef2f2; }
+
+        #status {
+            text-align: center;
+            font-size: 0.85rem;
+            height: 20px;
+            margin-top: -10px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Deep Vocab</h1>
-    <div id="status" class="status-msg"></div>
+<div class="app-container">
+    <header>
+        <h1>VocabVault</h1>
+        <p>Elaborating complex language, one word at a time.</p>
+    </header>
 
-    <div class="input-group">
-        <input type="text" id="wordIn" placeholder="Enter a complex word...">
-        <button onclick="handleAdd()">Elaborate</button>
+    <div id="status"></div>
+
+    <div class="glass-panel">
+        <div class="input-row">
+            <input type="text" id="wordIn" placeholder="Discover a new word...">
+            <button class="btn-primary" onclick="handleAdd()">Elaborate</button>
+        </div>
+        <input type="text" id="searchIn" placeholder="Search your bank..." onkeyup="fetchWords()">
     </div>
 
-    <input type="text" id="searchIn" placeholder="Search your bank..." onkeyup="fetchWords()" style="width: calc(100% - 32px); margin-bottom: 15px; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
-
-    <div id="vocabList"></div>
+    <div id="vocabList" class="word-list">
+        </div>
 </div>
 
 <script>
-    // Configuration
     const SB_URL = 'https://dpxvzxxqcwhgbngndfgc.supabase.co';
     const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRweHZ6eHhxY3doZ2JuZ25kZmdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwNjIzNjgsImV4cCI6MjA4NDYzODM2OH0.mQIeqj8zFs4oCLmKDSbTOi2pCi1DkJRGt7R0xTwBPXo';
-    
-    // Use unique name to avoid SyntaxError
     const dbClient = supabase.createClient(SB_URL, SB_KEY);
 
-    // Function to gather and elaborate meaning
-    async function getElaboratedMeaning(word) {
+    async function getDeepMeaning(word) {
         try {
             const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
             if (!res.ok) return null;
             const data = await res.json();
             
-            let fullExplanation = "";
-            let wordType = data[0].meanings[0].partOfSpeech;
+            let explanation = "";
+            let partOfSpeech = data[0].meanings[0].partOfSpeech;
 
-            // Gather definitions from different parts of speech for better elaboration
-            data[0].meanings.forEach((m, index) => {
-                const firstDef = m.definitions[0].definition;
-                fullExplanation += `${index + 1}. (${m.partOfSpeech}) ${firstDef}\n\n`;
+            data[0].meanings.forEach((m) => {
+                explanation += `● ${m.partOfSpeech.toUpperCase()}\n${m.definitions[0].definition}\n\n`;
             });
 
-            return { 
-                word: word, 
-                definition: fullExplanation.trim(), 
-                example: wordType // Storing type in the example column since we aren't using sentences
-            };
+            return { word, definition: explanation.trim(), example: partOfSpeech };
         } catch (e) { return null; }
     }
 
@@ -82,20 +217,20 @@
         const word = input.value.trim();
         if (!word) return;
 
-        showStatus("Analyzing word...");
-        const data = await getElaboratedMeaning(word);
+        updateStatus("✨ Analyzing...", "#6366f1");
+        const data = await getDeepMeaning(word);
 
         if (!data) {
-            showStatus("Word not found.");
+            updateStatus("❌ Word not found", "#ef4444");
             return;
         }
 
         const { error } = await dbClient.from('vocab').insert([data]);
         if (error) {
-            showStatus("Error saving. Check browser tracking.");
+            updateStatus("⚠️ Connection Error", "#f59e0b");
         } else {
             input.value = '';
-            showStatus("Added to your bank!");
+            updateStatus("✅ Added to Vault", "#10b981");
             fetchWords();
         }
     }
@@ -103,48 +238,47 @@
     async function fetchWords() {
         const search = document.getElementById('searchIn').value;
         let query = dbClient.from('vocab').select('*').order('created_at', { ascending: false });
-        
         if (search) query = query.ilike('word', `%${search}%`);
 
         const { data, error } = await query;
         if (error) return;
 
-        const list = document.getElementById('vocabList');
-        list.innerHTML = '';
+        const container = document.getElementById('vocabList');
+        container.innerHTML = '';
         data.forEach(item => {
             const card = document.createElement('div');
             card.className = 'word-card';
             card.innerHTML = `
                 <div class="word-header">
                     <div>
-                        <span class="meaning-pill">${item.example || 'Word'}</span>
-                        <h3>${item.word}</h3>
+                        <div class="pill">${item.example}</div>
+                        <div class="word-title">${item.word}</div>
                     </div>
-                    <div class="actions">
-                        <button class="btn-speak" onclick="speak('${item.word}')">Listen</button>
-                        <button class="btn-del" onclick="delWord(${item.id})">Remove</button>
+                    <div class="word-meta">
+                        <button class="btn-action" onclick="speak('${item.word}')">🔊 Listen</button>
+                        <button class="btn-action" onclick="delWord(${item.id})">🗑️ Delete</button>
                     </div>
                 </div>
-                <div class="elaboration">${item.definition}</div>
+                <div class="elaboration-text">${item.definition}</div>
             `;
-            list.appendChild(card);
+            container.appendChild(card);
         });
     }
 
     async function delWord(id) {
-        if (confirm("Remove this from your bank?")) {
+        if (confirm("Delete this entry?")) {
             await dbClient.from('vocab').delete().eq('id', id);
             fetchWords();
         }
     }
 
-    function speak(txt) {
-        window.speechSynthesis.speak(new SpeechSynthesisUtterance(txt));
-    }
+    function speak(txt) { window.speechSynthesis.speak(new SpeechSynthesisUtterance(txt)); }
 
-    function showStatus(msg) {
-        document.getElementById('status').innerText = msg;
-        setTimeout(() => document.getElementById('status').innerText = "", 3000);
+    function updateStatus(msg, color) {
+        const el = document.getElementById('status');
+        el.innerText = msg;
+        el.style.color = color;
+        setTimeout(() => el.innerText = "", 3000);
     }
 
     fetchWords();
