@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Vocab Bank</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* Using the same clean style from before */
+        body { font-family: sans-serif; background: #f4f7f6; display: flex; justify-content: center; padding: 20px; }
+        .container { background: white; padding: 2rem; border-radius: 12px; width: 100%; max-width: 500px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
+        button { padding: 10px; background: #3ecf8e; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        li { background: #fff; border: 1px solid #eee; padding: 15px; margin-bottom: 10px; border-radius: 8px; list-style: none; position: relative;}
+        .word-title { font-weight: bold; font-size: 1.1rem; display: block; }
+        .word-def { color: #666; font-size: 0.9rem; margin: 5px 0; }
+        .word-ex { font-style: italic; color: #999; font-size: 0.85rem; border-left: 2px solid #3ecf8e; padding-left: 8px; }
+        .delete-btn { position: absolute; top: 10px; right: 10px; color: red; cursor: pointer; background: none; border: none; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Cloud Word Bank</h2>
+    <div class="input-group">
+        <input type="text" id="wordInput" placeholder="Enter word...">
+        <button id="addBtn">Save to Cloud</button>
+    </div>
+    <ul id="wordList"></ul>
+</div>
+
+<script>
+    // 1. INITIALIZE SUPABASE
+    const SUPABASE_URL = 'https://dpxvzxxqcwhgbngndfgc.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRweHZ6eHhxY3doZ2JuZ25kZmdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwNjIzNjgsImV4cCI6MjA4NDYzODM2OH0.mQIeqj8zFs4oCLmKDSbTOi2pCi1DkJRGt7R0xTwBPXo';
+    const supabase = lib.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const wordInput = document.getElementById('wordInput');
+    const addBtn = document.getElementById('addBtn');
+    const wordList = document.getElementById('wordList');
+
+    // 2. LOAD DATA ON START
+    async function loadWords() {
+        wordList.innerHTML = "Loading...";
+        let { data: vocab, error } = await supabase.from('vocab').select('*').order('created_at', { ascending: false });
+        
+        wordList.innerHTML = "";
+        if (vocab) vocab.forEach(renderWord);
+    }
+
+    // 3. ADD WORD (API + SUPABASE)
+    addBtn.addEventListener('click', async () => {
+        const word = wordInput.value.trim();
+        if (!word) return;
+        addBtn.disabled = true;
+
+        try {
+            // Fetch definition from Dictionary API
+            const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+            const data = await res.json();
+            
+            const definition = data[0].meanings[0].definitions[0].definition;
+            const example = data[0].meanings[0].definitions[0].example || "No example found.";
+
+            // Save to Supabase Cloud
+            const { error } = await supabase.from('vocab').insert([{ word, meaning: definition, sentence: example }]);
+            
+            if (error) throw error;
+            
+            wordInput.value = "";
+            loadWords(); // Refresh list
+        } catch (err) {
+            alert("Error saving word.");
+        } finally {
+            addBtn.disabled = false;
+        }
+    });
+
+    function renderWord(obj) {
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <span class="word-title">${obj.word}</span>
+            <p class="word-def">${obj.meaning}</p>
+            <p class="word-ex">"${obj.sentence}"</p>
+            <button class="delete-btn" onclick="deleteWord('${obj.id}')">Delete</button>
+        `;
+        wordList.appendChild(li);
+    }
+
+    async function deleteWord(id) {
+        await supabase.from('vocab').delete().eq('id', id);
+        loadWords();
+    }
+
+    loadWords();
+</script>
+</body>
+</html>
