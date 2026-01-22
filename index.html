@@ -3,40 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cloud Vocab Bank</title>
+    <title>Pro Cloud Vocab Lab</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: 'Inter', sans-serif; background: #f4f7f6; display: flex; justify-content: center; padding: 20px; }
-        .container { background: white; padding: 2rem; border-radius: 12px; width: 100%; max-width: 500px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        h2 { color: #1e293b; margin-top: 0; }
+        :root {
+            --primary: #3ecf8e;
+            --bg: #f4f7f6;
+            --card: #ffffff;
+            --text: #1e293b;
+            --accent: #6366f1;
+        }
+
+        [data-theme="dark"] {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f8fafc;
+        }
+
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 20px; transition: 0.3s; }
+        .container { width: 100%; max-width: 600px; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        
+        .stats-bar { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 20px; display: flex; gap: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .stat-item { font-size: 0.85rem; font-weight: bold; }
+
         .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
-        input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
-        button { padding: 12px 20px; background: #3ecf8e; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: opacity 0.2s; }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
-        ul { padding: 0; }
-        li { background: #fff; border: 1px solid #eee; padding: 15px; margin-bottom: 12px; border-radius: 10px; list-style: none; position: relative; border-left: 4px solid #3ecf8e; }
-        .word-title { font-weight: bold; font-size: 1.2rem; display: block; text-transform: capitalize; color: #1e293b; }
-        .editable { outline: none; padding: 4px; border-radius: 4px; transition: background 0.2s; }
-        .editable:focus { background: #fcfcfc; border: 1px dashed #3ecf8e; }
-        .word-def { color: #4b5563; font-size: 0.95rem; margin: 8px 0; }
-        .word-ex { font-style: italic; color: #6b7280; font-size: 0.9rem; background: #f9fafb; padding: 8px; border-radius: 6px; }
-        .delete-btn { position: absolute; top: 12px; right: 12px; color: #ef4444; cursor: pointer; background: #fee2e2; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; }
-        .google-link { font-size: 0.75rem; color: #3ecf8e; text-decoration: none; display: inline-block; margin-top: 5px; }
+        input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 1rem; background: var(--card); color: var(--text); }
+        
+        button { padding: 10px 18px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-main { background: var(--primary); color: white; }
+        .btn-quiz { background: var(--accent); color: white; }
+        .btn-theme { background: #94a3b8; color: white; }
+
+        .word-card { background: var(--card); border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); position: relative; border-left: 6px solid var(--primary); }
+        
+        .quiz-hidden .word-def, .quiz-hidden .word-ex { filter: blur(5px); opacity: 0.3; cursor: pointer; }
+        .quiz-hidden .word-def:active, .quiz-hidden .word-ex:active { filter: blur(0); opacity: 1; }
+
+        .word-top { display: flex; justify-content: space-between; align-items: center; }
+        .word-title { font-size: 1.4rem; font-weight: 800; color: var(--primary); }
+        
+        .status-badge { font-size: 0.7rem; padding: 4px 8px; border-radius: 20px; background: #e2e8f0; color: #475569; cursor: pointer; }
+        
+        .controls-row { display: flex; gap: 10px; margin-top: 15px; align-items: center; }
+        .audio-btn { background: #f1f5f9; color: #475569; font-size: 0.8rem; }
+        .delete-btn { color: #ef4444; background: none; font-size: 0.8rem; margin-left: auto; }
+        
+        .editable { padding: 5px; border-radius: 5px; margin: 10px 0; line-height: 1.5; outline: none; }
+        .editable:hover { background: rgba(0,0,0,0.02); }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Cloud Word Bank</h2>
-    <div class="input-group">
-        <input type="text" id="wordInput" placeholder="Enter word...">
-        <button id="addBtn">Save to Cloud</button>
+    <div class="header">
+        <h1>VocabLab Pro</h1>
+        <button class="btn-theme" onclick="toggleTheme()">🌓 Theme</button>
     </div>
-    <ul id="wordList"></ul>
+
+    <div class="stats-bar">
+        <div class="stat-item">Total Words: <span id="totalCount">0</span></div>
+        <button class="btn-quiz" onclick="toggleQuiz()">Toggle Quiz Mode</button>
+    </div>
+
+    <div class="input-group">
+        <input type="text" id="wordInput" placeholder="Add a new word...">
+        <button id="addBtn" class="btn-main">Add to Cloud</button>
+    </div>
+
+    <div id="wordList"></div>
 </div>
 
 <script>
-    // 1. INITIALIZE SUPABASE (Using the correct 'supabase' object)
     const SUPABASE_URL = 'https://dpxvzxxqcwhgbngndfgc.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRweHZ6eHhxY3doZ2JuZ25kZmdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwNjIzNjgsImV4cCI6MjA4NDYzODM2OH0.mQIeqj8zFs4oCLmKDSbTOi2pCi1DkJRGt7R0xTwBPXo';
     const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -44,80 +83,84 @@
     const wordInput = document.getElementById('wordInput');
     const addBtn = document.getElementById('addBtn');
     const wordList = document.getElementById('wordList');
+    let isQuizMode = false;
 
-    // 2. LOAD DATA
     async function loadWords() {
-        wordList.innerHTML = "<li>Loading your words...</li>";
-        let { data: vocab, error } = await client.from('vocab').select('*').order('created_at', { ascending: false });
-        
+        let { data: vocab } = await client.from('vocab').select('*').order('created_at', { ascending: false });
         wordList.innerHTML = "";
+        document.getElementById('totalCount').innerText = vocab ? vocab.length : 0;
         if (vocab) vocab.forEach(renderWord);
     }
 
-    // 3. ADD WORD
     addBtn.addEventListener('click', async () => {
         const word = wordInput.value.trim();
         if (!word) return;
         addBtn.disabled = true;
-        addBtn.innerText = "Searching...";
-
+        
         try {
             const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
-            if (!res.ok) throw new Error("Not found");
             const data = await res.json();
-            
-            // Smarter extraction of definition and example
-            let definition = data[0].meanings[0].definitions[0].definition;
-            let example = "";
-            for(let m of data[0].meanings) {
-                for(let d of m.definitions) if(d.example) { example = d.example; break; }
-                if(example) break;
-            }
+            const definition = data[0].meanings[0].definitions[0].definition;
+            const example = data[0].meanings[0].definitions[0].example || "Search Google for an example...";
 
-            const { error } = await client.from('vocab').insert([
-                { 
-                    word: word, 
-                    meaning: definition, 
-                    sentence: example || "Click to add an example sentence..." 
-                }
-            ]);
-            
-            if (error) throw error;
-            
+            await client.from('vocab').insert([{ word, meaning: definition, sentence: example, status: 'Learning' }]);
             wordInput.value = "";
-            loadWords(); 
-        } catch (err) {
-            alert("Could not find or save word. Check spelling!");
-        } finally {
-            addBtn.disabled = false;
-            addBtn.innerText = "Save to Cloud";
-        }
+            loadWords();
+        } catch (e) { alert("Word not found!"); }
+        finally { addBtn.disabled = false; }
     });
 
     function renderWord(obj) {
-        const li = document.createElement('li');
-        const hasExample = obj.sentence && !obj.sentence.includes("Click to add");
-
-        li.innerHTML = `
-            <span class="word-title">${obj.word}</span>
-            <div class="word-def editable" contenteditable="true" onblur="updateWord('${obj.id}', 'meaning', this.innerText)">${obj.meaning}</div>
-            <div class="word-ex editable" contenteditable="true" onblur="updateWord('${obj.id}', 'sentence', this.innerText)">${obj.sentence}</div>
-            <a href="https://google.com/search?q=example+sentence+for+${obj.word}" target="_blank" class="google-link">Search Examples ↗</a>
-            <button class="delete-btn" onclick="deleteWord('${obj.id}')">Delete</button>
+        const div = document.createElement('div');
+        div.className = `word-card ${isQuizMode ? 'quiz-hidden' : ''}`;
+        div.innerHTML = `
+            <div class="word-top">
+                <span class="word-title">${obj.word}</span>
+                <span class="status-badge" onclick="cycleStatus('${obj.id}', '${obj.status}')">${obj.status || 'Learning'}</span>
+            </div>
+            <div class="word-def editable" contenteditable="true" onblur="updateField('${obj.id}', 'meaning', this.innerText)">${obj.meaning}</div>
+            <div class="word-ex editable" contenteditable="true" onblur="updateField('${obj.id}', 'sentence', this.innerText)">"${obj.sentence}"</div>
+            <div class="controls-row">
+                <button class="audio-btn" onclick="speak('${obj.word}')">🔊 Pronounce</button>
+                <a href="https://google.com/search?q=usage+example+${obj.word}" target="_blank" style="font-size:0.7rem; color:var(--accent)">Examples ↗</a>
+                <button class="delete-btn" onclick="deleteWord('${obj.id}')">Delete</button>
+            </div>
         `;
-        wordList.appendChild(li);
+        wordList.appendChild(div);
     }
 
-    // Update word if you edit it manually
-    async function updateWord(id, field, newValue) {
-        await client.from('vocab').update({ [field]: newValue }).eq('id', id);
+    // --- NEW LOGIC ---
+
+    function speak(word) {
+        const ut = new SpeechSynthesisUtterance(word);
+        window.speechSynthesis.speak(ut);
+    }
+
+    async function cycleStatus(id, current) {
+        const next = current === 'Learning' ? 'Reviewing' : current === 'Reviewing' ? 'Mastered' : 'Learning';
+        await client.from('vocab').update({ status: next }).eq('id', id);
+        loadWords();
+    }
+
+    async function updateField(id, field, value) {
+        await client.from('vocab').update({ [field]: value }).eq('id', id);
     }
 
     async function deleteWord(id) {
-        if(confirm("Delete this word?")) {
+        if(confirm("Permanently delete?")) {
             await client.from('vocab').delete().eq('id', id);
             loadWords();
         }
+    }
+
+    function toggleQuiz() {
+        isQuizMode = !isQuizMode;
+        loadWords();
+    }
+
+    function toggleTheme() {
+        const body = document.body;
+        body.getAttribute('data-theme') === 'dark' ? body.removeAttribute('data-theme') : body.setAttribute('data-theme', 'dark');
     }
 
     wordInput.addEventListener("keypress", (e) => { if (e.key === "Enter") addBtn.click(); });
