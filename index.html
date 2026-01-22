@@ -3,536 +3,282 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VocabMaster AI - Enhanced</title>
+    <title>VocabMaster AI</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary: #10b981;
-            --primary-light: #a7f3d0;
             --primary-hover: #059669;
-            --secondary: #8b5cf6;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --info: #3b82f6;
             --bg: #f8fafc;
             --card: #ffffff;
             --text-main: #1e293b;
             --text-muted: #64748b;
-            --border: #e2e8f0;
+            --danger: #ef4444;
             --overlay: rgba(0, 0, 0, 0.5);
-            --success: #10b981;
-            --shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
         }
 
-        * {
-            box-sizing: border-box;
+        body { 
+            font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+            background: var(--bg); 
+            color: var(--text-main); 
+            margin: 0; 
+            padding: 20px; 
+            display: flex; 
+            justify-content: center; 
         }
-
-        body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background: var(--bg);
-            color: var(--text-main);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
-        }
-
-        .app-container {
-            width: 100%;
-            max-width: 800px;
+        
+        .app-container { 
+            width: 100%; 
+            max-width: 500px; 
         }
 
         /* Header */
-        .header {
-            margin-bottom: 24px;
-            text-align: center;
+        .header { 
+            margin-bottom: 24px; 
+            text-align: center; 
         }
-
-        .header h1 {
-            margin: 0;
-            font-size: 2rem;
-            letter-spacing: -0.5px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            display: inline-block;
+        
+        .header h1 { 
+            margin: 0; 
+            font-size: 1.8rem; 
+            letter-spacing: -0.5px; 
         }
-
-        /* Tabs */
-        .tabs {
-            display: flex;
-            background: white;
-            border-radius: 12px;
-            padding: 4px;
-            margin-bottom: 24px;
-            box-shadow: var(--shadow);
-        }
-
-        .tab {
-            flex: 1;
-            padding: 12px;
-            text-align: center;
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            border-radius: 8px;
-            font-weight: 600;
-            color: var(--text-muted);
-            transition: all 0.3s;
-        }
-
-        .tab.active {
-            background: var(--primary);
-            color: white;
-        }
-
-        /* Tab Content */
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Dashboard */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .stat-card {
-            background: var(--card);
-            padding: 20px;
-            border-radius: 16px;
-            text-align: center;
-            box-shadow: var(--shadow);
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary);
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            margin-top: 8px;
+        
+        .stats { 
+            display: flex; 
+            justify-content: center; 
+            gap: 15px; 
+            margin-top: 10px; 
+            font-size: 0.9rem; 
+            color: var(--text-muted); 
         }
 
         /* Input Area */
-        .input-card {
-            background: var(--card);
-            padding: 24px;
-            border-radius: 16px;
-            box-shadow: var(--shadow);
-            margin-bottom: 24px;
+        .input-card { 
+            background: var(--card); 
+            padding: 20px; 
+            border-radius: 16px; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); 
+            margin-bottom: 24px; 
         }
-
-        .input-label {
-            display: block;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            margin-bottom: 8px;
+        
+        .input-label { 
+            display: block; 
+            font-size: 0.8rem; 
+            font-weight: 600; 
+            text-transform: uppercase; 
+            color: var(--text-muted); 
+            margin-bottom: 8px; 
         }
-
-        .field-group {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
+        
+        .field-group { 
+            display: flex; 
+            gap: 8px; 
         }
-
-        input, select {
-            flex: 1;
-            padding: 12px 16px;
-            border: 2px solid var(--border);
-            border-radius: 10px;
-            font-size: 1rem;
-            outline: none;
-            transition: border-color 0.2s;
+        
+        input { 
+            flex: 1; 
+            padding: 12px 16px; 
+            border: 2px solid #e2e8f0; 
+            border-radius: 10px; 
+            font-size: 1rem; 
+            outline: none; 
+            transition: border-color 0.2s; 
         }
-
-        input:focus, select:focus {
-            border-color: var(--primary);
+        
+        input:focus { 
+            border-color: var(--primary); 
         }
-
-        .btn {
-            padding: 12px 20px;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+        
+        .btn-add { 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            padding: 0 20px; 
+            border-radius: 10px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: background 0.2s; 
         }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
+        
+        .btn-add:hover { 
+            background: var(--primary-hover); 
         }
-
-        .btn-primary:hover {
-            background: var(--primary-hover);
-        }
-
-        .btn-secondary {
-            background: var(--secondary);
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #7c3aed;
-        }
-
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
+        
+        .btn-add:disabled { 
+            opacity: 0.6; 
+            cursor: not-allowed; 
         }
 
         /* Word List */
-        .word-list {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            padding: 0;
-            list-style: none;
+        .word-list { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 16px; 
+            padding: 0; 
+            list-style: none; 
+        }
+        
+        .word-card { 
+            background: var(--card); 
+            border-radius: 16px; 
+            padding: 20px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+            border: 1px solid #e2e8f0; 
+            animation: fadeIn 0.3s ease; 
+        }
+        
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
         }
 
-        .word-card {
-            background: var(--card);
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-            animation: fadeIn 0.3s ease;
+        .card-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 12px; 
+        }
+        
+        .word-text { 
+            font-size: 1.25rem; 
+            font-weight: 700; 
+            color: var(--text-main); 
+        }
+        
+        .editable-label { 
+            font-size: 0.7rem; 
+            color: var(--primary); 
+            font-weight: bold; 
+            margin-bottom: 4px; 
+            display: flex; 
+            align-items: center; 
+            gap: 4px; 
+        }
+        
+        .editable-content { 
+            padding: 8px; 
+            border-radius: 8px; 
+            background: #f1f5f9; 
+            font-size: 0.95rem; 
+            line-height: 1.5; 
+            margin-bottom: 12px; 
+            border: 1px solid transparent; 
+        }
+        
+        .editable-content:focus { 
+            background: white; 
+            border-color: var(--primary); 
+            outline: none; 
         }
 
-        .word-card.review-due {
-            border-left: 4px solid var(--warning);
-        }
-
-        .word-card.mastered {
-            border-left: 4px solid var(--success);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .word-text {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
-        .word-meta {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 12px;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        .word-tag {
-            background: var(--primary-light);
-            color: var(--primary-hover);
-            padding: 2px 8px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-        }
-
-        .word-level {
-            display: flex;
-            gap: 4px;
-            align-items: center;
-        }
-
-        .level-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--border);
-        }
-
-        .level-dot.active {
-            background: var(--primary);
-        }
-
-        .editable-label {
-            font-size: 0.7rem;
-            color: var(--primary);
-            font-weight: bold;
-            margin-bottom: 4px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .editable-content {
-            padding: 12px;
-            border-radius: 8px;
-            background: #f8fafc;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            margin-bottom: 16px;
-            border: 1px solid transparent;
-            min-height: 60px;
-        }
-
-        .editable-content:focus {
-            background: white;
-            border-color: var(--primary);
-            outline: none;
-        }
-
-        .card-footer {
-            display: flex;
-            justify-content: space-between;
-            border-top: 1px solid #f1f5f9;
+        .card-footer { 
+            display: flex; 
+            gap: 10px; 
+            border-top: 1px solid #f1f5f9; 
+            margin-top: 5px; 
             padding-top: 12px;
-            margin-top: 5px;
+        }
+        
+        .icon-btn { 
+            background: none; 
+            border: none; 
+            cursor: pointer; 
+            color: var(--text-muted); 
+            font-size: 0.85rem; 
+            display: flex; 
+            align-items: center; 
+            gap: 4px; 
+            padding: 5px; 
+            border-radius: 6px; 
+        }
+        
+        .icon-btn:hover { 
+            background: #f1f5f9; 
+            color: var(--text-main); 
+        }
+        
+        .delete-trigger { 
+            color: var(--danger); 
+        }
+        
+        .delete-trigger:hover { 
+            background: #fef2f2; 
+            color: var(--danger); 
         }
 
-        .icon-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            padding: 6px 10px;
-            border-radius: 6px;
-            transition: all 0.2s;
+        /* Custom Modal */
+        .modal-overlay { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: var(--overlay); 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 1000; 
+        }
+        
+        .modal { 
+            background: white; 
+            padding: 24px; 
+            border-radius: 16px; 
+            width: 90%; 
+            max-width: 320px; 
+            text-align: center; 
+        }
+        
+        .modal h3 { 
+            margin: 0 0 10px 0; 
+            color: var(--danger); 
+        }
+        
+        .modal-btns { 
+            display: flex; 
+            gap: 10px; 
+            margin-top: 20px; 
+        }
+        
+        .modal-btn { 
+            flex: 1; 
+            padding: 10px; 
+            border-radius: 8px; 
+            border: none; 
+            font-weight: 600; 
+            cursor: pointer; 
+        }
+        
+        .confirm-del { 
+            background: var(--danger); 
+            color: white; 
+        }
+        
+        .cancel-del { 
+            background: #e2e8f0; 
+            color: var(--text-main); 
         }
 
-        .icon-btn:hover {
-            background: #f1f5f9;
-            color: var(--text-main);
+        .empty-state { 
+            text-align: center; 
+            padding: 40px; 
+            color: var(--text-muted); 
         }
-
-        .delete-trigger {
-            color: var(--danger);
-        }
-
-        .delete-trigger:hover {
-            background: #fef2f2;
-            color: var(--danger);
-        }
-
-        /* Quiz Section */
-        .quiz-card {
-            background: var(--card);
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: var(--shadow);
-            margin-bottom: 24px;
-            text-align: center;
-        }
-
-        .quiz-question {
-            font-size: 1.2rem;
-            margin-bottom: 24px;
-            font-weight: 600;
-        }
-
-        .quiz-options {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-
-        .quiz-option {
-            padding: 16px;
-            border: 2px solid var(--border);
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: left;
-        }
-
-        .quiz-option:hover {
-            border-color: var(--primary);
-            background: #f0fdf4;
-        }
-
-        .quiz-option.selected {
-            border-color: var(--primary);
-            background: #f0fdf4;
-        }
-
-        .quiz-option.correct {
-            border-color: var(--success);
-            background: #d1fae5;
-        }
-
-        .quiz-option.incorrect {
-            border-color: var(--danger);
-            background: #fee2e2;
-        }
-
-        .quiz-result {
-            display: none;
-            padding: 20px;
-            background: #f0fdf4;
+        
+        /* Review Status */
+        .review-badge {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 4px 8px;
             border-radius: 12px;
-            margin-top: 20px;
-        }
-
-        .quiz-result.show {
-            display: block;
-        }
-
-        .quiz-score {
-            font-size: 3rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin: 10px 0;
-        }
-
-        /* Review Section */
-        .review-card {
-            background: linear-gradient(135deg, #a5b4fc, #c4b5fd);
-            color: white;
-            padding: 30px;
-            border-radius: 16px;
-            margin-bottom: 24px;
-            text-align: center;
-        }
-
-        .review-count {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin: 10px 0;
-        }
-
-        /* Progress Chart */
-        .progress-chart {
-            background: var(--card);
-            padding: 24px;
-            border-radius: 16px;
-            box-shadow: var(--shadow);
-            margin-bottom: 24px;
-        }
-
-        .chart-container {
-            height: 200px;
-            position: relative;
-            margin-top: 20px;
-        }
-
-        /* Modal */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--overlay);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .modal {
-            background: white;
-            padding: 30px;
-            border-radius: 16px;
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-        }
-
-        .modal h3 {
-            margin: 0 0 10px 0;
-            color: var(--text-main);
-        }
-
-        .modal-btns {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .modal-btn {
-            flex: 1;
-            padding: 12px;
-            border-radius: 8px;
-            border: none;
+            font-size: 0.7rem;
             font-weight: 600;
-            cursor: pointer;
         }
-
-        .confirm-del {
-            background: var(--danger);
-            color: white;
-        }
-
-        .cancel-del {
-            background: #e2e8f0;
-            color: var(--text-main);
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-muted);
-        }
-
-        .empty-state i {
-            font-size: 3rem;
-            margin-bottom: 16px;
-            color: var(--border);
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .field-group {
-                flex-direction: column;
-            }
-            
-            .card-footer {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .tabs {
-                flex-direction: column;
-            }
+        
+        /* Sample Sentence Section */
+        .sentence-input {
+            margin-top: 12px;
         }
     </style>
 </head>
@@ -540,191 +286,33 @@
 
 <div class="app-container">
     <div class="header">
-        <h1><i class="fas fa-brain"></i> VocabMaster AI</h1>
-        <p>Enhance your vocabulary and English communication</p>
-    </div>
-
-    <div class="tabs">
-        <button class="tab active" data-tab="dashboard">Dashboard</button>
-        <button class="tab" data-tab="learn">Learn Words</button>
-        <button class="tab" data-tab="review">Review</button>
-        <button class="tab" data-tab="quiz">Quiz</button>
-        <button class="tab" data-tab="progress">Progress</button>
-    </div>
-
-    <!-- Dashboard Tab -->
-    <div id="dashboard" class="tab-content active">
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-value" id="totalWords">0</div>
-                <div class="stat-label">Total Words</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="masteredWords">0</div>
-                <div class="stat-label">Mastered</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="reviewDue">0</div>
-                <div class="stat-label">Due for Review</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="streakDays">0</div>
-                <div class="stat-label">Day Streak</div>
-            </div>
-        </div>
-
-        <div class="progress-chart">
-            <h3>Learning Progress</h3>
-            <div class="chart-container">
-                <canvas id="progressChart"></canvas>
-            </div>
-        </div>
-
-        <div class="input-card">
-            <h3>Quick Add Word</h3>
-            <div class="field-group">
-                <input type="text" id="quickWordInput" placeholder="Enter a new word...">
-                <button id="quickAddBtn" class="btn btn-primary"><i class="fas fa-plus"></i> Quick Add</button>
-            </div>
+        <h1>VocabMaster AI</h1>
+        <div class="stats">
+            <span>Words: <b id="wordCount">0</b></span>
+            <span>To Review: <b id="reviewCount">0</b></span>
         </div>
     </div>
 
-    <!-- Learn Tab -->
-    <div id="learn" class="tab-content">
-        <div class="input-card">
-            <h3>Add New Vocabulary</h3>
-            <div class="field-group">
-                <input type="text" id="wordInput" placeholder="e.g. Serendipity">
-                <button id="addBtn" class="btn btn-primary"><i class="fas fa-search"></i> Search & Add</button>
-            </div>
-            <div class="field-group">
-                <select id="partOfSpeech">
-                    <option value="">Select Part of Speech (Optional)</option>
-                    <option value="noun">Noun</option>
-                    <option value="verb">Verb</option>
-                    <option value="adjective">Adjective</option>
-                    <option value="adverb">Adverb</option>
-                </select>
-                <input type="text" id="tagsInput" placeholder="Tags (comma separated)">
-            </div>
+    <div class="input-card">
+        <label class="input-label">Add New Word</label>
+        <div class="field-group">
+            <input type="text" id="wordInput" placeholder="e.g. Serendipity">
+            <button id="addBtn" class="btn-add">Add</button>
         </div>
-
-        <div class="filter-controls">
-            <button class="btn" id="filterAll">All Words</button>
-            <button class="btn" id="filterReview">Due for Review</button>
-            <button class="btn" id="filterMastered">Mastered</button>
-        </div>
-
-        <ul id="wordList" class="word-list"></ul>
-    </div>
-
-    <!-- Review Tab -->
-    <div id="review" class="tab-content">
-        <div class="review-card">
-            <h2><i class="fas fa-sync-alt"></i> Spaced Repetition Review</h2>
-            <div class="review-count" id="reviewCount">0</div>
-            <p>words are due for review today</p>
-            <button class="btn btn-secondary" id="startReviewBtn"><i class="fas fa-play"></i> Start Review Session</button>
-        </div>
-
-        <div id="reviewSession" style="display: none;">
-            <div class="quiz-card">
-                <div class="quiz-question" id="reviewQuestion">What does this word mean?</div>
-                <div id="reviewWord" style="font-size: 2rem; font-weight: bold; margin: 20px 0; color: var(--secondary);"></div>
-                
-                <div class="quiz-options">
-                    <div class="quiz-option" data-response="again">Again (Review in 1 day)</div>
-                    <div class="quiz-option" data-response="hard">Hard (Review in 3 days)</div>
-                    <div class="quiz-option" data-response="good">Good (Review in 1 week)</div>
-                    <div class="quiz-option" data-response="easy">Easy (Mastered)</div>
-                </div>
-                
-                <button class="btn btn-primary" id="nextReviewBtn" style="display: none;"><i class="fas fa-arrow-right"></i> Next Word</button>
-            </div>
-        </div>
-
-        <div id="reviewWordsList"></div>
-    </div>
-
-    <!-- Quiz Tab -->
-    <div id="quiz" class="tab-content">
-        <div class="quiz-card">
-            <h2>Vocabulary Quiz</h2>
-            <p>Test your knowledge with multiple-choice questions</p>
-            
-            <div class="field-group">
-                <select id="quizLevel">
-                    <option value="all">All Levels</option>
-                    <option value="1">Level 1 (New)</option>
-                    <option value="2">Level 2</option>
-                    <option value="3">Level 3</option>
-                    <option value="4">Level 4</option>
-                    <option value="5">Level 5 (Mastered)</option>
-                </select>
-                <select id="quizType">
-                    <option value="meaning">Word Meaning</option>
-                    <option value="word">Definition to Word</option>
-                </select>
-            </div>
-            
-            <button class="btn btn-primary" id="startQuizBtn"><i class="fas fa-play-circle"></i> Start Quiz (5 Questions)</button>
-        </div>
-
-        <div id="quizSession" style="display: none;">
-            <div class="quiz-card">
-                <div class="quiz-question" id="quizQuestion">Question will appear here</div>
-                <div class="quiz-options" id="quizOptions"></div>
-                <button class="btn btn-primary" id="submitQuizBtn" style="display: none;">Submit Answer</button>
-                <button class="btn btn-secondary" id="nextQuizBtn" style="display: none;">Next Question</button>
-            </div>
-            
-            <div class="quiz-result" id="quizResult">
-                <h3>Quiz Complete!</h3>
-                <div class="quiz-score" id="quizScore">0/5</div>
-                <p id="quizFeedback">Feedback will appear here</p>
-                <button class="btn btn-primary" id="restartQuizBtn">Try Another Quiz</button>
-            </div>
+        
+        <div class="sentence-input">
+            <label class="input-label">Sample Sentence (Optional)</label>
+            <input type="text" id="sentenceInput" placeholder="e.g. Finding this restaurant was pure serendipity">
         </div>
     </div>
 
-    <!-- Progress Tab -->
-    <div id="progress" class="tab-content">
-        <div class="input-card">
-            <h3><i class="fas fa-chart-line"></i> Learning Statistics</h3>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value" id="avgLevel">0.0</div>
-                    <div class="stat-label">Average Level</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="quizAccuracy">0%</div>
-                    <div class="stat-label">Quiz Accuracy</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="wordsThisWeek">0</div>
-                    <div class="stat-label">Added This Week</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="totalReviews">0</div>
-                    <div class="stat-label">Total Reviews</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="progress-chart">
-            <h3>Words Added Over Time</h3>
-            <div class="chart-container">
-                <canvas id="timelineChart"></canvas>
-            </div>
-        </div>
-    </div>
+    <ul id="wordList" class="word-list"></ul>
 </div>
 
-<!-- Delete Modal -->
 <div id="deleteModal" class="modal-overlay">
     <div class="modal">
-        <h3><i class="fas fa-exclamation-triangle"></i> Delete Word?</h3>
-        <p>This action cannot be undone. Are you sure?</p>
+        <h3>Delete Word?</h3>
+        <p>This cannot be undone. Are you sure?</p>
         <div class="modal-btns">
             <button class="modal-btn cancel-del" onclick="closeModal()">Cancel</button>
             <button id="confirmDeleteBtn" class="modal-btn confirm-del">Delete</button>
@@ -732,7 +320,6 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     // Supabase Configuration
     const SUPABASE_URL = 'https://dpxvzxxqcwhgbngndfgc.supabase.co';
@@ -740,107 +327,27 @@
     const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // App State
-    let currentUser = 'default';
     let words = [];
-    let reviewWords = [];
-    let currentReviewIndex = 0;
-    let quizWords = [];
-    let currentQuizIndex = 0;
-    let quizScore = 0;
-    let quizAnswers = [];
+    let wordToDelete = null;
 
     // DOM Elements
-    const tabs = document.querySelectorAll('.tab');
-    const tabContents = document.querySelectorAll('.tab-content');
     const wordInput = document.getElementById('wordInput');
+    const sentenceInput = document.getElementById('sentenceInput');
     const addBtn = document.getElementById('addBtn');
-    const quickWordInput = document.getElementById('quickWordInput');
-    const quickAddBtn = document.getElementById('quickAddBtn');
     const wordList = document.getElementById('wordList');
     const deleteModal = document.getElementById('deleteModal');
-    const startReviewBtn = document.getElementById('startReviewBtn');
-    const reviewSession = document.getElementById('reviewSession');
-    const nextReviewBtn = document.getElementById('nextReviewBtn');
-    const startQuizBtn = document.getElementById('startQuizBtn');
-    const quizSession = document.getElementById('quizSession');
-    const submitQuizBtn = document.getElementById('submitQuizBtn');
-    const nextQuizBtn = document.getElementById('nextQuizBtn');
-    const quizResult = document.getElementById('quizResult');
-    const restartQuizBtn = document.getElementById('restartQuizBtn');
-    const filterAll = document.getElementById('filterAll');
-    const filterReview = document.getElementById('filterReview');
-    const filterMastered = document.getElementById('filterMastered');
-    let wordToDelete = null;
-    let progressChart, timelineChart;
 
     // Initialize App
     document.addEventListener('DOMContentLoaded', function() {
         loadWords();
-        setupEventListeners();
-        updateDashboard();
-        initCharts();
-    });
-
-    // Setup Event Listeners
-    function setupEventListeners() {
-        // Tab switching
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                const tabId = tab.getAttribute('data-tab');
-                switchTab(tabId);
-            });
-        });
-
-        // Add word button
+        
+        // Event Listeners
         addBtn.addEventListener('click', addWord);
-        quickAddBtn.addEventListener('click', quickAddWord);
-
-        // Word input enter key
-        wordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addBtn.click(); });
-        quickWordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') quickAddBtn.click(); });
-
-        // Delete modal
         document.getElementById('confirmDeleteBtn').addEventListener('click', confirmDelete);
-
-        // Review session
-        startReviewBtn.addEventListener('click', startReviewSession);
-        nextReviewBtn.addEventListener('click', nextReviewWord);
-        
-        // Quiz
-        startQuizBtn.addEventListener('click', startQuiz);
-        submitQuizBtn.addEventListener('click', submitQuizAnswer);
-        nextQuizBtn.addEventListener('click', nextQuizQuestion);
-        restartQuizBtn.addEventListener('click', () => {
-            quizSession.style.display = 'none';
-            quizResult.classList.remove('show');
+        wordInput.addEventListener('keypress', (e) => { 
+            if (e.key === 'Enter') addWord(); 
         });
-
-        // Filters
-        filterAll.addEventListener('click', () => filterWords('all'));
-        filterReview.addEventListener('click', () => filterWords('review'));
-        filterMastered.addEventListener('click', () => filterWords('mastered'));
-
-        // Review options
-        document.querySelectorAll('.quiz-option[data-response]').forEach(option => {
-            option.addEventListener('click', function() {
-                document.querySelectorAll('.quiz-option').forEach(opt => opt.classList.remove('selected'));
-                this.classList.add('selected');
-                nextReviewBtn.style.display = 'block';
-            });
-        });
-    }
-
-    // Tab Switching
-    function switchTab(tabId) {
-        tabs.forEach(tab => tab.classList.remove('active'));
-        tabContents.forEach(content => content.classList.remove('active'));
-        
-        document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
-        document.getElementById(tabId).classList.add('active');
-        
-        if (tabId === 'dashboard') updateDashboard();
-        if (tabId === 'progress') updateProgressStats();
-    }
+    });
 
     // Load Words from Supabase
     async function loadWords() {
@@ -856,19 +363,21 @@
         
         words = vocab || [];
         renderWordList(words);
-        updateReviewCount();
+        updateStats();
     }
 
     // Add Word with Dictionary API
     async function addWord() {
         const word = wordInput.value.trim();
-        const partOfSpeech = document.getElementById('partOfSpeech').value;
-        const tags = document.getElementById('tagsInput').value.split(',').map(t => t.trim()).filter(t => t);
+        const userSentence = sentenceInput.value.trim();
         
-        if (!word) return;
+        if (!word) {
+            alert('Please enter a word');
+            return;
+        }
         
         addBtn.disabled = true;
-        addBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Searching...';
+        addBtn.textContent = 'Adding...';
         
         try {
             // Get word definition from API
@@ -876,91 +385,60 @@
             if (!res.ok) throw new Error('Word not found');
             
             const data = await res.json();
-            const definition = data[0].meanings[0].definitions[0].definition;
-            const example = data[0].meanings[0].definitions[0].example || "No example available.";
+            const definition = data[0]?.meanings[0]?.definitions[0]?.definition || 'No definition found';
             
-            // Get pronunciation if available
-            let pronunciation = '';
-            if (data[0].phonetics && data[0].phonetics.length > 0) {
-                pronunciation = data[0].phonetics[0].text || '';
+            // Use user's sentence if provided, otherwise try to get from API
+            let sentence = userSentence;
+            if (!sentence && data[0]?.meanings[0]?.definitions[0]?.example) {
+                sentence = data[0].meanings[0].definitions[0].example;
+            }
+            if (!sentence) {
+                sentence = `Try using "${word}" in your own sentence.`;
             }
             
-            // Calculate next review (1 day from now for new words)
-            const nextReview = new Date();
-            nextReview.setDate(nextReview.getDate() + 1);
-            
-            // Insert into Supabase
+            // Add to Supabase (simple version without extra columns)
             const { error } = await client
                 .from('vocab')
                 .insert([{
-                    word,
+                    word: word,
                     meaning: definition,
-                    sentence: example,
-                    pronunciation,
-                    part_of_speech: partOfSpeech || data[0].meanings[0].partOfSpeech || '',
-                    tags: tags.length > 0 ? tags : ['general'],
-                    level: 1,
-                    next_review: nextReview.toISOString(),
-                    review_count: 0,
-                    mastered: false
+                    sentence: sentence,
+                    created_at: new Date().toISOString()
                 }]);
             
             if (error) throw error;
-            
-            // Update progress
-            await updateProgress('word_added');
             
             // Clear inputs and reload
             wordInput.value = '';
-            document.getElementById('partOfSpeech').value = '';
-            document.getElementById('tagsInput').value = '';
+            sentenceInput.value = '';
             loadWords();
-            updateDashboard();
             
         } catch (error) {
-            alert("Word not found or error adding word. Please check spelling or try another word.");
-            console.error('Error:', error);
+            console.error('Error adding word:', error);
+            
+            // Try to add without API (user will edit manually)
+            try {
+                const { error } = await client
+                    .from('vocab')
+                    .insert([{
+                        word: word,
+                        meaning: 'Click to add definition',
+                        sentence: userSentence || `Try using "${word}" in your own sentence.`,
+                        created_at: new Date().toISOString()
+                    }]);
+                
+                if (error) throw error;
+                
+                wordInput.value = '';
+                sentenceInput.value = '';
+                loadWords();
+                
+            } catch (fallbackError) {
+                alert('Error adding word. Please check your connection or try a different word.');
+            }
         } finally {
             addBtn.disabled = false;
-            addBtn.innerHTML = '<i class="fas fa-search"></i> Search & Add';
-        }
-    }
-
-    // Quick Add Word
-    async function quickAddWord() {
-        const word = quickWordInput.value.trim();
-        if (!word) return;
-        
-        quickAddBtn.disabled = true;
-        quickAddBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
-        
-        try {
-            const nextReview = new Date();
-            nextReview.setDate(nextReview.getDate() + 1);
-            
-            const { error } = await client
-                .from('vocab')
-                .insert([{
-                    word,
-                    meaning: "Definition will be added later",
-                    sentence: "Example sentence will be added later",
-                    level: 1,
-                    next_review: nextReview.toISOString(),
-                    tags: ['quick-add']
-                }]);
-            
-            if (error) throw error;
-            
-            await updateProgress('word_added');
-            quickWordInput.value = '';
-            loadWords();
-            updateDashboard();
-            
-        } catch (error) {
-            alert("Error adding word");
-        } finally {
-            quickAddBtn.disabled = false;
-            quickAddBtn.innerHTML = '<i class="fas fa-plus"></i> Quick Add';
+            addBtn.textContent = 'Add';
         }
     }
 
@@ -971,7 +449,6 @@
         if (!wordArray || wordArray.length === 0) {
             wordList.innerHTML = `
                 <div class="empty-state">
-                    <i class="fas fa-book-open"></i>
                     <h3>No words yet</h3>
                     <p>Start adding words to build your vocabulary!</p>
                 </div>
@@ -982,561 +459,73 @@
         wordArray.forEach(word => {
             const li = document.createElement('li');
             li.className = 'word-card';
-            if (isReviewDue(word)) li.classList.add('review-due');
-            if (word.mastered) li.classList.add('mastered');
-            
-            // Format tags
-            const tagsHtml = word.tags && word.tags.length > 0 
-                ? word.tags.map(tag => `<span class="word-tag">${tag}</span>`).join('')
-                : '';
-            
-            // Create level indicator
-            let levelDots = '';
-            for (let i = 1; i <= 5; i++) {
-                levelDots += `<span class="level-dot ${i <= word.level ? 'active' : ''}"></span>`;
-            }
             
             li.innerHTML = `
                 <div class="card-header">
                     <span class="word-text">${word.word}</span>
-                    <div>
-                        <button class="icon-btn" onclick="speak('${word.word}')"><i class="fas fa-volume-up"></i> Listen</button>
-                        <button class="icon-btn" onclick="openDeleteModal('${word.id}')"><i class="fas fa-trash"></i></button>
-                    </div>
+                    <button class="icon-btn" onclick="speak('${word.word}')">🔊 Listen</button>
                 </div>
                 
-                <div class="word-meta">
-                    ${word.part_of_speech ? `<span><i class="fas fa-tag"></i> ${word.part_of_speech}</span>` : ''}
-                    ${word.pronunciation ? `<span><i class="fas fa-microphone"></i> ${word.pronunciation}</span>` : ''}
-                    <div class="word-level">Level: ${levelDots}</div>
-                </div>
+                <div class="editable-label">✎ DEFINITION</div>
+                <div class="editable-content" contenteditable="true" onblur="updateField('${word.id}', 'meaning', this.innerText)">${word.meaning}</div>
                 
-                ${tagsHtml ? `<div style="margin-bottom: 10px;">${tagsHtml}</div>` : ''}
-                
-                <div class="editable-label"><i class="fas fa-book"></i> DEFINITION</div>
-                <div class="editable-content" contenteditable="true" onblur="updateField('${word.id}', 'meaning', this.innerText)">${word.meaning || 'Add definition'}</div>
-                
-                <div class="editable-label"><i class="fas fa-comment"></i> EXAMPLE SENTENCE</div>
-                <div class="editable-content" contenteditable="true" onblur="updateField('${word.id}', 'sentence', this.innerText)">${word.sentence || 'Add example sentence'}</div>
+                <div class="editable-label">✎ SAMPLE SENTENCE</div>
+                <div class="editable-content" contenteditable="true" onblur="updateField('${word.id}', 'sentence', this.innerText)">${word.sentence}</div>
                 
                 <div class="card-footer">
-                    <div>
-                        <span class="icon-btn" style="cursor: default;"><i class="fas fa-history"></i> Reviews: ${word.review_count || 0}</span>
-                        <span class="icon-btn" style="cursor: default;"><i class="fas fa-calendar"></i> Next: ${formatDate(word.next_review)}</span>
-                    </div>
-                    <div>
-                        <a class="icon-btn" href="https://google.com/search?q=${encodeURIComponent(word.word)}+usage+examples" target="_blank"><i class="fas fa-external-link-alt"></i> Find Usage</a>
-                        <button class="icon-btn" onclick="showWordDetails('${word.id}')"><i class="fas fa-info-circle"></i> Details</button>
-                    </div>
+                    <a class="icon-btn" href="https://google.com/search?q=how+to+use+${encodeURIComponent(word.word)}+in+a+sentence" target="_blank">
+                        🔗 More Examples
+                    </a>
+                    <button class="icon-btn delete-trigger" onclick="openDeleteModal('${word.id}')">🗑 Delete</button>
                 </div>
             `;
             wordList.appendChild(li);
         });
     }
 
-    // Filter Words
-    function filterWords(filterType) {
-        let filteredWords = [];
+    // Update Stats
+    function updateStats() {
+        document.getElementById('wordCount').textContent = words.length;
         
-        switch(filterType) {
-            case 'review':
-                filteredWords = words.filter(word => isReviewDue(word));
-                break;
-            case 'mastered':
-                filteredWords = words.filter(word => word.mastered);
-                break;
-            default:
-                filteredWords = words;
-        }
-        
-        renderWordList(filteredWords);
-        
-        // Update active filter button
-        document.querySelectorAll('.filter-controls .btn').forEach(btn => btn.classList.remove('active'));
-        event.target.classList.add('active');
-    }
-
-    // Check if review is due
-    function isReviewDue(word) {
-        if (word.mastered) return false;
-        if (!word.next_review) return true;
-        return new Date(word.next_review) <= new Date();
-    }
-
-    // Update Review Count
-    function updateReviewCount() {
-        const dueWords = words.filter(word => isReviewDue(word));
-        document.getElementById('reviewCount').textContent = dueWords.length;
-        document.getElementById('reviewDue').textContent = dueWords.length;
-    }
-
-    // Start Review Session
-    function startReviewSession() {
-        reviewWords = words.filter(word => isReviewDue(word));
-        
-        if (reviewWords.length === 0) {
-            alert('No words due for review today!');
-            return;
-        }
-        
-        currentReviewIndex = 0;
-        reviewSession.style.display = 'block';
-        startReviewBtn.style.display = 'none';
-        showReviewWord();
-    }
-
-    // Show Review Word
-    function showReviewWord() {
-        if (currentReviewIndex >= reviewWords.length) {
-            endReviewSession();
-            return;
-        }
-        
-        const word = reviewWords[currentReviewIndex];
-        document.getElementById('reviewWord').textContent = word.word;
-        document.getElementById('reviewQuestion').textContent = `What does "${word.word}" mean?`;
-        
-        // Reset options
-        document.querySelectorAll('.quiz-option').forEach(opt => {
-            opt.classList.remove('selected');
-        });
-        nextReviewBtn.style.display = 'none';
-    }
-
-    // Next Review Word
-    async function nextReviewWord() {
-        const selectedOption = document.querySelector('.quiz-option.selected');
-        if (!selectedOption) {
-            alert('Please select how well you knew this word');
-            return;
-        }
-        
-        const response = selectedOption.getAttribute('data-response');
-        const word = reviewWords[currentReviewIndex];
-        
-        // Update word based on response
-        let newLevel = word.level;
-        let daysToAdd = 1;
-        let mastered = word.mastered;
-        
-        switch(response) {
-            case 'again':
-                newLevel = Math.max(1, word.level - 1);
-                daysToAdd = 1;
-                break;
-            case 'hard':
-                newLevel = word.level;
-                daysToAdd = 3;
-                break;
-            case 'good':
-                newLevel = Math.min(5, word.level + 1);
-                daysToAdd = 7;
-                break;
-            case 'easy':
-                newLevel = 5;
-                mastered = true;
-                daysToAdd = 30;
-                break;
-        }
-        
-        // Calculate next review date
-        const nextReview = new Date();
-        nextReview.setDate(nextReview.getDate() + daysToAdd);
-        
-        // Update word in database
-        await client
-            .from('vocab')
-            .update({
-                level: newLevel,
-                next_review: nextReview.toISOString(),
-                review_count: (word.review_count || 0) + 1,
-                mastered: mastered
-            })
-            .eq('id', word.id);
-        
-        // Update progress
-        await updateProgress('word_reviewed');
-        
-        // Move to next word
-        currentReviewIndex++;
-        showReviewWord();
-    }
-
-    // End Review Session
-    function endReviewSession() {
-        reviewSession.style.display = 'none';
-        startReviewBtn.style.display = 'block';
-        loadWords();
-        updateDashboard();
-        alert('Review session completed!');
-    }
-
-    // Start Quiz
-    async function startQuiz() {
-        const level = document.getElementById('quizLevel').value;
-        const type = document.getElementById('quizType').value;
-        
-        // Filter words based on level
-        quizWords = level === 'all' 
-            ? [...words].sort(() => 0.5 - Math.random()).slice(0, 5)
-            : words.filter(word => word.level == level).sort(() => 0.5 - Math.random()).slice(0, 5);
-        
-        if (quizWords.length < 2) {
-            alert('Not enough words for a quiz. Add more words first.');
-            return;
-        }
-        
-        currentQuizIndex = 0;
-        quizScore = 0;
-        quizAnswers = [];
-        
-        startQuizBtn.style.display = 'none';
-        quizSession.style.display = 'block';
-        quizResult.classList.remove('show');
-        
-        showQuizQuestion();
-    }
-
-    // Show Quiz Question
-    function showQuizQuestion() {
-        if (currentQuizIndex >= quizWords.length) {
-            endQuiz();
-            return;
-        }
-        
-        const word = quizWords[currentQuizIndex];
-        const type = document.getElementById('quizType').value;
-        const questionContainer = document.getElementById('quizQuestion');
-        const optionsContainer = document.getElementById('quizOptions');
-        
-        // Get wrong answers (other words)
-        const wrongWords = words
-            .filter(w => w.id !== word.id)
-            .sort(() => 0.5 - Math.random())
-            .slice(0, 3);
-        
-        // Create options array
-        const options = [word, ...wrongWords].sort(() => 0.5 - Math.random());
-        
-        if (type === 'meaning') {
-            questionContainer.textContent = `What does "${word.word}" mean?`;
-            
-            optionsContainer.innerHTML = options.map(w => `
-                <div class="quiz-option" data-id="${w.id}">${w.meaning}</div>
-            `).join('');
-        } else {
-            questionContainer.textContent = `Which word means: "${word.meaning}"?`;
-            
-            optionsContainer.innerHTML = options.map(w => `
-                <div class="quiz-option" data-id="${w.id}">${w.word}</div>
-            `).join('');
-        }
-        
-        // Add click handlers to options
-        document.querySelectorAll('.quiz-option').forEach(option => {
-            option.addEventListener('click', function() {
-                document.querySelectorAll('.quiz-option').forEach(opt => opt.classList.remove('selected'));
-                this.classList.add('selected');
-                submitQuizBtn.style.display = 'block';
-            });
-        });
-        
-        submitQuizBtn.style.display = 'none';
-        nextQuizBtn.style.display = 'none';
-    }
-
-    // Submit Quiz Answer
-    function submitQuizAnswer() {
-        const selectedOption = document.querySelector('.quiz-option.selected');
-        if (!selectedOption) return;
-        
-        const selectedId = selectedOption.getAttribute('data-id');
-        const correctWord = quizWords[currentQuizIndex];
-        const isCorrect = selectedId === correctWord.id;
-        
-        // Show correct/incorrect styling
-        document.querySelectorAll('.quiz-option').forEach(option => {
-            if (option.getAttribute('data-id') === correctWord.id) {
-                option.classList.add('correct');
-            }
-            if (option.getAttribute('data-id') === selectedId && !isCorrect) {
-                option.classList.add('incorrect');
-            }
-            option.style.pointerEvents = 'none';
-        });
-        
-        // Update score
-        if (isCorrect) quizScore++;
-        quizAnswers.push({ question: correctWord.word, correct: isCorrect });
-        
-        submitQuizBtn.style.display = 'none';
-        nextQuizBtn.style.display = 'block';
-    }
-
-    // Next Quiz Question
-    function nextQuizQuestion() {
-        currentQuizIndex++;
-        showQuizQuestion();
-    }
-
-    // End Quiz
-    async function endQuiz() {
-        quizSession.style.display = 'none';
-        quizResult.classList.add('show');
-        
-        document.getElementById('quizScore').textContent = `${quizScore}/${quizWords.length}`;
-        
-        let feedback = '';
-        if (quizScore === quizWords.length) {
-            feedback = 'Excellent! You got all questions correct!';
-        } else if (quizScore >= quizWords.length * 0.7) {
-            feedback = 'Good job! Keep practicing to improve.';
-        } else {
-            feedback = 'Keep learning! Review the words you missed.';
-        }
-        
-        document.getElementById('quizFeedback').textContent = feedback;
-        
-        // Save quiz result
-        await client
-            .from('quiz_history')
-            .insert([{
-                user_id: currentUser,
-                score: quizScore,
-                total_questions: quizWords.length,
-                quiz_type: document.getElementById('quizType').value
-            }]);
-        
-        // Update progress
-        await updateProgress('quiz_completed');
-    }
-
-    // Update Dashboard
-    function updateDashboard() {
-        document.getElementById('totalWords').textContent = words.length;
-        document.getElementById('masteredWords').textContent = words.filter(w => w.mastered).length;
-        
-        const dueWords = words.filter(word => isReviewDue(word));
-        document.getElementById('reviewDue').textContent = dueWords.length;
-        
-        // Update streak (simplified - would need more logic for real streak tracking)
-        document.getElementById('streakDays').textContent = Math.floor(Math.random() * 30) + 1; // Placeholder
-        
-        updateCharts();
-    }
-
-    // Update Progress Stats
-    async function updateProgressStats() {
-        // Calculate average level
-        const avgLevel = words.length > 0 
-            ? (words.reduce((sum, word) => sum + (word.level || 1), 0) / words.length).toFixed(1)
-            : '0.0';
-        document.getElementById('avgLevel').textContent = avgLevel;
-        
-        // Get quiz accuracy
-        const { data: quizzes } = await client
-            .from('quiz_history')
-            .select('score, total_questions')
-            .order('completed_at', { ascending: false })
-            .limit(10);
-        
-        let totalScore = 0;
-        let totalPossible = 0;
-        
-        if (quizzes && quizzes.length > 0) {
-            quizzes.forEach(quiz => {
-                totalScore += quiz.score;
-                totalPossible += quiz.total_questions;
-            });
-            
-            const accuracy = totalPossible > 0 ? Math.round((totalScore / totalPossible) * 100) : 0;
-            document.getElementById('quizAccuracy').textContent = `${accuracy}%`;
-        } else {
-            document.getElementById('quizAccuracy').textContent = '0%';
-        }
-        
-        // Words added this week
+        // Calculate review count (words added in last 7 days)
         const oneWeekAgo = new Date();
         oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-        
-        const wordsThisWeek = words.filter(word => {
+        const recentWords = words.filter(word => {
             const wordDate = new Date(word.created_at);
             return wordDate >= oneWeekAgo;
-        }).length;
-        
-        document.getElementById('wordsThisWeek').textContent = wordsThisWeek;
-        
-        // Total reviews
-        const totalReviews = words.reduce((sum, word) => sum + (word.review_count || 0), 0);
-        document.getElementById('totalReviews').textContent = totalReviews;
-    }
-
-    // Update Progress Tracking
-    async function updateProgress(action) {
-        const today = new Date().toISOString().split('T')[0];
-        
-        // Check if progress entry exists for today
-        const { data: existing } = await client
-            .from('learning_progress')
-            .select('*')
-            .eq('user_id', currentUser)
-            .eq('date', today)
-            .single();
-        
-        if (existing) {
-            // Update existing entry
-            const updates = {};
-            if (action === 'word_added') updates.words_added = existing.words_added + 1;
-            if (action === 'word_reviewed') updates.words_reviewed = existing.words_reviewed + 1;
-            if (action === 'quiz_completed') updates.quizzes_completed = (existing.quizzes_completed || 0) + 1;
-            
-            await client
-                .from('learning_progress')
-                .update(updates)
-                .eq('id', existing.id);
-        } else {
-            // Create new entry
-            const entry = {
-                user_id: currentUser,
-                date: today,
-                words_added: action === 'word_added' ? 1 : 0,
-                words_reviewed: action === 'word_reviewed' ? 1 : 0,
-                streak_days: 1 // Simplified
-            };
-            
-            await client
-                .from('learning_progress')
-                .insert([entry]);
-        }
-    }
-
-    // Initialize Charts
-    function initCharts() {
-        const progressCtx = document.getElementById('progressChart').getContext('2d');
-        progressChart = new Chart(progressCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Level 1', 'Level 2', 'Level 3', 'Level 4', 'Level 5'],
-                datasets: [{
-                    data: [0, 0, 0, 0, 0],
-                    backgroundColor: [
-                        '#f87171',
-                        '#fb923c',
-                        '#fbbf24',
-                        '#a3e635',
-                        '#10b981'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    }
-                }
-            }
         });
-        
-        const timelineCtx = document.getElementById('timelineChart').getContext('2d');
-        timelineChart = new Chart(timelineCtx, {
-            type: 'line',
-            data: {
-                labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'],
-                datasets: [{
-                    label: 'Words Added',
-                    data: [0, 0, 0, 0, 0, 0, 0],
-                    borderColor: '#10b981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                    tension: 0.3,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 1
-                        }
-                    }
-                }
-            }
-        });
+        document.getElementById('reviewCount').textContent = recentWords.length;
     }
 
-    // Update Charts
-    function updateCharts() {
-        // Update progress chart
-        const levelCounts = [0, 0, 0, 0, 0];
-        words.forEach(word => {
-            const level = Math.min(5, Math.max(1, word.level || 1)) - 1;
-            levelCounts[level]++;
-        });
-        
-        progressChart.data.datasets[0].data = levelCounts;
-        progressChart.update();
-        
-        // Update timeline chart (simplified - would need real data)
-        const recentWords = [...words]
-            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-            .slice(0, 20);
-        
-        // Simplified timeline data
-        timelineChart.data.datasets[0].data = [3, 5, 2, 7, 4, 6, 8]; // Placeholder
-        timelineChart.update();
-    }
-
-    // Utility Functions
+    // Open Delete Modal
     function openDeleteModal(id) {
         wordToDelete = id;
         deleteModal.style.display = 'flex';
     }
 
+    // Close Modal
     function closeModal() {
         deleteModal.style.display = 'none';
         wordToDelete = null;
     }
 
+    // Confirm Delete
     async function confirmDelete() {
         if (wordToDelete) {
             await client.from('vocab').delete().eq('id', wordToDelete);
             closeModal();
             loadWords();
-            updateDashboard();
         }
     }
 
+    // Update Field in Database
     async function updateField(id, field, value) {
         await client.from('vocab').update({ [field]: value }).eq('id', id);
-        loadWords();
     }
 
+    // Text-to-Speech
     function speak(word) {
-        const utterance = new SpeechSynthesisUtterance(word);
-        utterance.rate = 0.8;
-        window.speechSynthesis.speak(utterance);
-    }
-
-    function formatDate(dateString) {
-        if (!dateString) return 'N/A';
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    }
-
-    function showWordDetails(id) {
-        const word = words.find(w => w.id === id);
-        if (word) {
-            alert(`Word Details:\n\nWord: ${word.word}\nPart of Speech: ${word.part_of_speech || 'N/A'}\nPronunciation: ${word.pronunciation || 'N/A'}\nLevel: ${word.level}\nReviews: ${word.review_count || 0}\nMastered: ${word.mastered ? 'Yes' : 'No'}\nNext Review: ${formatDate(word.next_review)}`);
-        }
+        window.speechSynthesis.speak(new SpeechSynthesisUtterance(word));
     }
 
     // Close modal when clicking outside
