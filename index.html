@@ -265,6 +265,19 @@
             color: var(--text-muted);
             margin-top: 8px;
         }
+        
+        .sentence-toggle {
+            margin-top: 8px;
+            font-size: 0.8rem;
+            color: var(--primary);
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        
+        .loading {
+            color: var(--primary);
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -285,8 +298,14 @@
             <button id="addBtn" class="btn-add">Add</button>
         </div>
         
-        <label class="input-label">Sample Sentence (Optional)</label>
-        <input type="text" id="sentenceInput" placeholder="e.g. Finding this restaurant was pure serendipity" style="width: 100%;">
+        <div class="sentence-toggle" onclick="toggleSentenceInput()">
+            ✏️ Add custom sentence (optional)
+        </div>
+        
+        <div id="sentenceContainer" style="display: none; margin-top: 12px;">
+            <label class="input-label">Custom Sentence</label>
+            <input type="text" id="sentenceInput" placeholder="e.g. Finding this restaurant was pure serendipity" style="width: 100%;">
+        </div>
     </div>
 
     <ul id="wordList" class="word-list"></ul>
@@ -316,6 +335,7 @@
     // DOM Elements
     const wordInput = document.getElementById('wordInput');
     const sentenceInput = document.getElementById('sentenceInput');
+    const sentenceContainer = document.getElementById('sentenceContainer');
     const addBtn = document.getElementById('addBtn');
     const wordList = document.getElementById('wordList');
     const deleteModal = document.getElementById('deleteModal');
@@ -331,6 +351,11 @@
             if (e.key === 'Enter') addWord(); 
         });
     });
+
+    // Toggle Sentence Input
+    function toggleSentenceInput() {
+        sentenceContainer.style.display = sentenceContainer.style.display === 'none' ? 'block' : 'none';
+    }
 
     // Load Words from Supabase
     async function loadWords() {
@@ -349,10 +374,60 @@
         updateStats();
     }
 
-    // Add Word with Dictionary API
+    // Generate AI Sentence (Free API)
+    async function generateSentence(word, definition) {
+        // Method 1: Try Dictionary API first
+        try {
+            const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+            if (res.ok) {
+                const data = await res.json();
+                const example = data[0]?.meanings[0]?.definitions[0]?.example;
+                if (example) return example;
+            }
+        } catch (e) {
+            console.log('Dictionary API failed, trying alternative');
+        }
+        
+        // Method 2: Try Datamuse API for related words to create sentence
+        try {
+            const res = await fetch(`https://api.datamuse.com/words?rel_jja=${word}&max=5`);
+            const data = await res.json();
+            if (data.length > 0) {
+                const relatedWords = data.map(w => w.word).slice(0, 3);
+                const templates = [
+                    `The ${word} was evident in the way ${relatedWords[0]} interacted with ${relatedWords[1] || 'others'}.`,
+                    `She demonstrated ${word} through her ${relatedWords[0]} approach to the problem.`,
+                    `His ${word} was apparent when he ${relatedWords[0]} the situation.`,
+                    `The ${word} of the ${relatedWords[0]} was remarkable.`,
+                    `We observed ${word} in the ${relatedWords[0]} process.`
+                ];
+                return templates[Math.floor(Math.random() * templates.length)];
+            }
+        } catch (e) {
+            console.log('Datamuse API failed');
+        }
+        
+        // Method 3: Use pre-built sentence templates
+        const sentenceTemplates = [
+            `The ${word} was immediately apparent in that situation.`,
+            `She showed remarkable ${word} in her approach.`,
+            `His ${word} became evident as the discussion continued.`,
+            `We admired the ${word} displayed by the team.`,
+            `The concept of ${word} is essential in this context.`,
+            `Her ${word} made a significant difference in the outcome.`,
+            `The ${word} of the solution was impressive.`,
+            `He demonstrated ${word} throughout the entire process.`,
+            `The ${word} involved in this matter cannot be overstated.`,
+            `Their ${word} was key to the project's success.`
+        ];
+        
+        return sentenceTemplates[Math.floor(Math.random() * sentenceTemplates.length)];
+    }
+
+    // Add Word with Automatic Sentence Generation
     async function addWord() {
         const word = wordInput.value.trim();
-        const userSentence = sentenceInput.value.trim();
+        const customSentence = sentenceInput.value.trim();
         
         if (!word) {
             alert('Please enter a word');
@@ -363,42 +438,64 @@
         addBtn.textContent = 'Adding...';
         
         try {
-            // Get word definition from API
+            // Step 1: Get word definition from API
             const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
             if (!res.ok) throw new Error('Word not found');
             
             const data = await res.json();
             const definition = data[0]?.meanings[0]?.definitions[0]?.definition || 'No definition found';
             
-            // Use user's sentence if provided, otherwise try to get from API
-            let sentence = userSentence;
-            if (!sentence && data[0]?.meanings[0]?.definitions[0]?.example) {
-                sentence = data[0].meanings[0].definitions[0].example;
-            }
-            if (!sentence) {
-                sentence = `Try using "${word}" in your own sentence.`;
+            // Step 2: Generate or use sentence
+            let sentence = '';
+            if (customSentence) {
+                sentence = customSentence;
+            } else {
+                addBtn.textContent = 'Generating sentence...';
+                sentence = await generateSentence(word, definition);
             }
             
-            // Add to Supabase with clean structure
+            // Step 3: Add to Supabase
             const { error } = await client
                 .from('vocab')
                 .insert([{
                     word: word,
                     meaning: definition,
                     sentence: sentence
-                    // created_at will be auto-generated
                 }]);
             
             if (error) throw error;
             
-            // Clear inputs and reload
+            // Step 4: Clear inputs and reload
             wordInput.value = '';
             sentenceInput.value = '';
+            sentenceContainer.style.display = 'none';
             loadWords();
             
         } catch (error) {
             console.error('Error adding word:', error);
-            alert('Error adding word. Please try again.');
+            
+            // Fallback: Add word with minimal data
+            try {
+                const sentence = customSentence || `The word "${word}" can be used in various contexts.`;
+                
+                const { error } = await client
+                    .from('vocab')
+                    .insert([{
+                        word: word,
+                        meaning: 'Click to add definition',
+                        sentence: sentence
+                    }]);
+                
+                if (error) throw error;
+                
+                wordInput.value = '';
+                sentenceInput.value = '';
+                sentenceContainer.style.display = 'none';
+                loadWords();
+                
+            } catch (fallbackError) {
+                alert('Error adding word. Please check your connection or try a different word.');
+            }
         } finally {
             addBtn.disabled = false;
             addBtn.textContent = 'Add';
@@ -429,7 +526,10 @@
             li.innerHTML = `
                 <div class="card-header">
                     <span class="word-text">${word.word}</span>
-                    <button class="icon-btn" onclick="speak('${word.word}')">🔊 Listen</button>
+                    <div>
+                        <button class="icon-btn" onclick="speak('${word.word}')">🔊 Listen</button>
+                        <button class="icon-btn" onclick="regenerateSentence('${word.id}', '${word.word}')">🔄 New Sentence</button>
+                    </div>
                 </div>
                 
                 <div class="editable-label">DEFINITION</div>
@@ -441,7 +541,7 @@
                 <div class="date-added">Added: ${date}</div>
                 
                 <div class="card-footer">
-                    <a class="icon-btn" href="https://google.com/search?q=how+to+use+${encodeURIComponent(word.word)}+in+a+sentence" target="_blank">
+                    <a class="icon-btn" href="https://google.com/search?q=how+to+use+"${encodeURIComponent(word.word)}"+in+a+sentence" target="_blank">
                         🔗 More Examples
                     </a>
                     <button class="icon-btn delete-trigger" onclick="openDeleteModal('${word.id}')">🗑 Delete</button>
@@ -449,6 +549,30 @@
             `;
             wordList.appendChild(li);
         });
+    }
+
+    // Regenerate Sentence for existing word
+    async function regenerateSentence(wordId, word) {
+        const wordCard = document.querySelector(`[onclick*="${wordId}"]`)?.closest('.word-card');
+        const sentenceDiv = wordCard?.querySelector('.editable-content:nth-child(4)');
+        
+        if (sentenceDiv) {
+            const originalText = sentenceDiv.textContent;
+            sentenceDiv.innerHTML = '<span class="loading">Generating new sentence...</span>';
+            
+            try {
+                // Try to get definition first
+                const wordObj = words.find(w => w.id === wordId);
+                const definition = wordObj?.meaning || '';
+                
+                const newSentence = await generateSentence(word, definition);
+                await updateField(wordId, 'sentence', newSentence);
+                sentenceDiv.textContent = newSentence;
+            } catch (error) {
+                sentenceDiv.textContent = originalText;
+                alert('Failed to generate new sentence. Please try again.');
+            }
+        }
     }
 
     // Update Stats
