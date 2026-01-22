@@ -32,7 +32,6 @@
             max-width: 500px; 
         }
 
-        /* Header */
         .header { 
             margin-bottom: 24px; 
             text-align: center; 
@@ -53,7 +52,6 @@
             color: var(--text-muted); 
         }
 
-        /* Input Area */
         .input-card { 
             background: var(--card); 
             padding: 20px; 
@@ -74,6 +72,7 @@
         .field-group { 
             display: flex; 
             gap: 8px; 
+            margin-bottom: 12px;
         }
         
         input { 
@@ -110,7 +109,6 @@
             cursor: not-allowed; 
         }
 
-        /* Word List */
         .word-list { 
             display: flex; 
             flex-direction: column; 
@@ -151,9 +149,6 @@
             color: var(--primary); 
             font-weight: bold; 
             margin-bottom: 4px; 
-            display: flex; 
-            align-items: center; 
-            gap: 4px; 
         }
         
         .editable-content { 
@@ -207,7 +202,6 @@
             color: var(--danger); 
         }
 
-        /* Custom Modal */
         .modal-overlay { 
             display: none; 
             position: fixed; 
@@ -266,19 +260,10 @@
             color: var(--text-muted); 
         }
         
-        /* Review Status */
-        .review-badge {
-            background: #fef3c7;
-            color: #92400e;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            font-weight: 600;
-        }
-        
-        /* Sample Sentence Section */
-        .sentence-input {
-            margin-top: 12px;
+        .date-added {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 8px;
         }
     </style>
 </head>
@@ -289,7 +274,7 @@
         <h1>VocabMaster AI</h1>
         <div class="stats">
             <span>Words: <b id="wordCount">0</b></span>
-            <span>To Review: <b id="reviewCount">0</b></span>
+            <span>Today: <b id="todayCount">0</b></span>
         </div>
     </div>
 
@@ -300,10 +285,8 @@
             <button id="addBtn" class="btn-add">Add</button>
         </div>
         
-        <div class="sentence-input">
-            <label class="input-label">Sample Sentence (Optional)</label>
-            <input type="text" id="sentenceInput" placeholder="e.g. Finding this restaurant was pure serendipity">
-        </div>
+        <label class="input-label">Sample Sentence (Optional)</label>
+        <input type="text" id="sentenceInput" placeholder="e.g. Finding this restaurant was pure serendipity" style="width: 100%;">
     </div>
 
     <ul id="wordList" class="word-list"></ul>
@@ -351,7 +334,7 @@
 
     // Load Words from Supabase
     async function loadWords() {
-        const { data: vocab, error } = await client
+        const { data, error } = await client
             .from('vocab')
             .select('*')
             .order('created_at', { ascending: false });
@@ -361,7 +344,7 @@
             return;
         }
         
-        words = vocab || [];
+        words = data || [];
         renderWordList(words);
         updateStats();
     }
@@ -396,14 +379,14 @@
                 sentence = `Try using "${word}" in your own sentence.`;
             }
             
-            // Add to Supabase (simple version without extra columns)
+            // Add to Supabase with clean structure
             const { error } = await client
                 .from('vocab')
                 .insert([{
                     word: word,
                     meaning: definition,
-                    sentence: sentence,
-                    created_at: new Date().toISOString()
+                    sentence: sentence
+                    // created_at will be auto-generated
                 }]);
             
             if (error) throw error;
@@ -415,27 +398,7 @@
             
         } catch (error) {
             console.error('Error adding word:', error);
-            
-            // Try to add without API (user will edit manually)
-            try {
-                const { error } = await client
-                    .from('vocab')
-                    .insert([{
-                        word: word,
-                        meaning: 'Click to add definition',
-                        sentence: userSentence || `Try using "${word}" in your own sentence.`,
-                        created_at: new Date().toISOString()
-                    }]);
-                
-                if (error) throw error;
-                
-                wordInput.value = '';
-                sentenceInput.value = '';
-                loadWords();
-                
-            } catch (fallbackError) {
-                alert('Error adding word. Please check your connection or try a different word.');
-            }
+            alert('Error adding word. Please try again.');
         } finally {
             addBtn.disabled = false;
             addBtn.textContent = 'Add';
@@ -460,17 +423,22 @@
             const li = document.createElement('li');
             li.className = 'word-card';
             
+            // Format date
+            const date = word.created_at ? new Date(word.created_at).toLocaleDateString() : 'Recently';
+            
             li.innerHTML = `
                 <div class="card-header">
                     <span class="word-text">${word.word}</span>
                     <button class="icon-btn" onclick="speak('${word.word}')">🔊 Listen</button>
                 </div>
                 
-                <div class="editable-label">✎ DEFINITION</div>
-                <div class="editable-content" contenteditable="true" onblur="updateField('${word.id}', 'meaning', this.innerText)">${word.meaning}</div>
+                <div class="editable-label">DEFINITION</div>
+                <div class="editable-content" contenteditable="true" onblur="updateField('${word.id}', 'meaning', this.innerText)">${word.meaning || 'Click to add definition'}</div>
                 
-                <div class="editable-label">✎ SAMPLE SENTENCE</div>
-                <div class="editable-content" contenteditable="true" onblur="updateField('${word.id}', 'sentence', this.innerText)">${word.sentence}</div>
+                <div class="editable-label">SAMPLE SENTENCE</div>
+                <div class="editable-content" contenteditable="true" onblur="updateField('${word.id}', 'sentence', this.innerText)">${word.sentence || 'Click to add example sentence'}</div>
+                
+                <div class="date-added">Added: ${date}</div>
                 
                 <div class="card-footer">
                     <a class="icon-btn" href="https://google.com/search?q=how+to+use+${encodeURIComponent(word.word)}+in+a+sentence" target="_blank">
@@ -487,14 +455,13 @@
     function updateStats() {
         document.getElementById('wordCount').textContent = words.length;
         
-        // Calculate review count (words added in last 7 days)
-        const oneWeekAgo = new Date();
-        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-        const recentWords = words.filter(word => {
-            const wordDate = new Date(word.created_at);
-            return wordDate >= oneWeekAgo;
+        // Count words added today
+        const today = new Date().toDateString();
+        const todayWords = words.filter(word => {
+            const wordDate = word.created_at ? new Date(word.created_at).toDateString() : '';
+            return wordDate === today;
         });
-        document.getElementById('reviewCount').textContent = recentWords.length;
+        document.getElementById('todayCount').textContent = todayWords.length;
     }
 
     // Open Delete Modal
