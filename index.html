@@ -6,46 +6,45 @@
 <title>Word Bank</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
-    :root { --primary: #6366f1; --primary-hover: #4f46e5; --bg: #f8fafc; --card-bg: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --accent: #e0e7ff; --danger: #ef4444; }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main); padding: 40px 20px; }
-    .app-container { max-width: 700px; margin: 0 auto; }
-    header { text-align: center; margin-bottom: 40px; }
-    header h1 { font-size: 2.5rem; font-weight: 800; background: linear-gradient(to right, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .glass-panel { background: var(--card-bg); padding: 24px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); margin-bottom: 30px; }
-    .input-row { display: flex; gap: 12px; margin-bottom: 16px; }
-    input, textarea { width: 100%; padding: 14px 18px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 1rem; outline: none; transition: 0.2s; font-family: inherit; }
-    input:focus, textarea:focus { border-color: var(--primary); }
-    .btn-primary { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 600; cursor: pointer; }
-    .word-card { background: var(--card-bg); border-radius: 20px; padding: 28px; margin-bottom: 25px; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
-    .word-title { font-size: 1.8rem; font-weight: 800; text-transform: capitalize; }
-    .pill { padding: 4px 12px; border-radius: 99px; font-size: 0.7rem; font-weight: 700; background: var(--accent); color: var(--primary); text-transform: uppercase; margin-bottom: 5px; display: inline-block; }
-    .elaboration-text { color: #334155; font-size: 1.05rem; white-space: pre-line; background: #f8fafc; padding: 18px; border-radius: 12px; border-left: 4px solid var(--primary); margin-bottom: 15px; }
-    .sandbox { margin-top: 15px; border-top: 1px dashed #e2e8f0; padding-top: 15px; }
-    .sandbox-label { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-    .btn-google { background: #ea4335; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; text-decoration: none; }
-    .btn-save { background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
-    .practice-input { font-style: italic; font-size: 0.95rem; color: #475569; background: #fff; min-height: 80px; resize: vertical; border: 2px solid #f1f5f9; }
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(8px); }
-    .modal-content { background: white; padding: 32px; border-radius: 24px; max-width: 400px; width: 90%; text-align: center; }
-    .login-panel { max-width: 400px; margin: 100px auto; background: var(--card-bg); padding: 30px; border-radius: 20px; box-shadow: 0 10px 15px rgba(0,0,0,0.05); text-align: center; }
-    .login-panel input { margin-bottom: 15px; }
+:root { --primary: #6366f1; --primary-hover: #4f46e5; --bg: #f8fafc; --card-bg: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --accent: #e0e7ff; --danger: #ef4444; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main); padding: 40px 20px; }
+.app-container { max-width: 700px; margin: 0 auto; }
+header { text-align: center; margin-bottom: 40px; }
+header h1 { font-size: 2.5rem; font-weight: 800; background: linear-gradient(to right, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+header p { font-weight: 600; }
+.glass-panel { background: var(--card-bg); padding: 24px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); margin-bottom: 30px; }
+.input-row { display: flex; gap: 12px; margin-bottom: 16px; }
+input, textarea { width: 100%; padding: 14px 18px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 1rem; outline: none; transition: 0.2s; font-family: inherit; }
+input:focus, textarea:focus { border-color: var(--primary); }
+.btn-primary { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 600; cursor: pointer; }
+.word-card { background: var(--card-bg); border-radius: 20px; padding: 28px; margin-bottom: 25px; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+.word-title { font-size: 1.8rem; font-weight: 800; text-transform: capitalize; }
+.pill { padding: 4px 12px; border-radius: 99px; font-size: 0.7rem; font-weight: 700; background: var(--accent); color: var(--primary); text-transform: uppercase; margin-bottom: 5px; display: inline-block; }
+.elaboration-text { color: #334155; font-size: 1.05rem; white-space: pre-line; background: #f8fafc; padding: 18px; border-radius: 12px; border-left: 4px solid var(--primary); margin-bottom: 15px; }
+.sandbox { margin-top: 15px; border-top: 1px dashed #e2e8f0; padding-top: 15px; }
+.sandbox-label { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+.btn-google { background: #ea4335; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; text-decoration: none; }
+.btn-save { background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
+.practice-input { font-style: italic; font-size: 0.95rem; color: #475569; background: #fff; min-height: 80px; resize: vertical; border: 2px solid #f1f5f9; }
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(8px); }
+.modal-content { background: white; padding: 32px; border-radius: 24px; max-width: 400px; width: 90%; text-align: center; }
+.login-panel { max-width: 400px; margin: 100px auto; background: var(--card-bg); padding: 30px; border-radius: 20px; box-shadow: 0 10px 15px rgba(0,0,0,0.05); text-align: center; }
+.login-panel input { margin-bottom: 15px; }
 </style>
 </head>
 <body>
 
 <div id="loginContainer" class="login-panel">
-    <h2>Login</h2>
-    <input type="text" id="username" placeholder="Username">
-    <input type="password" id="password" placeholder="Password">
-    <button class="btn-primary" onclick="handleLogin()">Login / Register</button>
-    <p id="loginStatus" style="margin-top:10px; font-weight:600;"></p>
+    <h2>Welcome!</h2>
+    <input type="text" id="username" placeholder="Enter your name">
+    <button class="btn-primary" onclick="handleLogin()">Log In</button>
 </div>
 
 <div id="appContainer" class="app-container" style="display:none;">
     <header>
         <h1>Word Bank</h1>
-        <p>what's the word again?</p>
+        <p id="greeting"></p>
     </header>
     <div id="status" style="text-align: center; height: 30px; font-weight: 600;"></div>
     <div class="glass-panel">
@@ -75,21 +74,12 @@ let targetId = null;
 
 function handleLogin() {
     const user = document.getElementById('username').value.trim();
-    const pass = document.getElementById('password').value.trim();
-    const status = document.getElementById('loginStatus');
-    if(!user || !pass) { status.innerText = "Fill in both fields"; return; }
-    
-    let users = JSON.parse(localStorage.getItem('users') || '{}');
-    if(users[user] && users[user] !== pass) {
-        status.innerText = "❌ Wrong password";
-        return;
-    }
-    users[user] = pass;
-    localStorage.setItem('users', JSON.stringify(users));
-    localStorage.setItem('currentUser', user);
+    if(!user) return;
     currentUser = user;
+    localStorage.setItem('currentUser', user);
     document.getElementById('loginContainer').style.display = 'none';
     document.getElementById('appContainer').style.display = 'block';
+    document.getElementById('greeting').innerText = `Hello, ${user}!`;
     fetchWords();
 }
 
@@ -195,13 +185,14 @@ document.getElementById('confirmDeleteBtn').onclick = () => {
     }
 };
 
-// Check login on load
+// Auto-login if user saved
 window.onload = () => {
     const savedUser = localStorage.getItem('currentUser');
     if(savedUser) { 
         currentUser = savedUser; 
         document.getElementById('loginContainer').style.display = 'none';
         document.getElementById('appContainer').style.display = 'block';
+        document.getElementById('greeting').innerText = `Hello, ${savedUser}!`;
         fetchWords();
     }
 };
